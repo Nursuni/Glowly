@@ -6,6 +6,8 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver } from '@nestjs/apollo';
 import { T } from './libs/types/common';
 import { AppResolver } from './app.resolver';
+import { ComponentsModule } from './components/components.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { AppResolver } from './app.resolver';
         return graphQLFormatError;
       },
     }),
+    ComponentsModule,
+    DatabaseModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppResolver],
