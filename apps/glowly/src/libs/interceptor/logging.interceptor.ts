@@ -59,11 +59,16 @@ export class LoggingInterceptor implements NestInterceptor {
         }),
         catchError((error) => {
           const ms = Date.now() - startTime;
+
+          const message =
+            error?.response?.message || error?.message || 'Unknown error';
+
           this.logger.error(
-            `${operation.toUpperCase()} → ${fieldName} - ${ms}ms`,
-            error.stack,
+            `${operation.toUpperCase()} → ${fieldName} - ${ms}ms | ${message}`,
+            undefined,
             'GRAPHQL ERROR',
           );
+
           throw error;
         }),
       );

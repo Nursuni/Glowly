@@ -21,11 +21,11 @@ import { ComponentsModule } from './components/components.module';
       formatError: (error: T) => {
         console.log('error:', error);
         const graphQLFormatError = {
-          code: error?.extensions.code,
+          code: error?.extensions?.code || 'INTERNAL_SERVER_ERROR',
           message:
             error?.extensions?.response?.message ||
-            error?.extensions?.response?.message ||
-            error?.message,
+            error?.message ||
+            'Something went wrong',
         };
         console.log('GRAPHQL GLOBAL ERR');
         return graphQLFormatError;
