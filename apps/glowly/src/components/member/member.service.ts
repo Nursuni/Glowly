@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -44,7 +45,7 @@ export class MemberService {
     if (!response || response.memberStatus === MemberStatus.DELETED) {
       throw new UnauthorizedException(Message.NO_MEMBER_NICK);
     } else if (response.memberStatus === MemberStatus.BLOCKED)
-      throw new InternalServerErrorException(Message.BLOCKED_USER);
+      throw new ForbiddenException(Message.BLOCKED_USER);
 
     if (!response.memberPassword) {
       throw new InternalServerErrorException('Password missing');
@@ -55,8 +56,7 @@ export class MemberService {
       response.memberPassword,
     );
 
-    if (!isMatch)
-      throw new InternalServerErrorException(Message.WRONG_PASSWORD);
+    if (!isMatch) throw new UnauthorizedException(Message.WRONG_PASSWORD);
     response.accessToken = await this.authService.createToken(response);
     return response;
   }

@@ -36,15 +36,14 @@ export class Member {
 
   @Field(() => String)
   memberImage: string;
+  @Field(() => Int, { nullable: true })
+  memberProducts: number;
 
   @Field(() => String, { nullable: true })
   memberAddress?: string;
 
   @Field(() => String, { nullable: true })
   memberDesc?: string;
-
-  @Field(() => Int)
-  memberProperties: number;
 
   @Field(() => Int)
   memberArticles: number;
