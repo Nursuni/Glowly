@@ -1,8 +1,6 @@
 import { Schema } from 'mongoose';
 import {
-  BranchLocation,
   ProductStatus,
-  ProductSubType,
   ProductType,
   VolumeUnit,
   SkinType,
@@ -18,22 +16,16 @@ const ProductSchema = new Schema(
       enum: Object.values(ProductType),
       required: true,
     },
-
+    //TODO: correct the SUbt
     productSubType: {
       type: String,
-      enum: Object.values(ProductSubType),
+      enum: Object.values(ProductType),
     },
 
     productStatus: {
       type: String,
       enum: Object.values(ProductStatus),
       default: ProductStatus.ACTIVE,
-    },
-
-    branchLocation: {
-      type: String,
-      enum: Object.values(BranchLocation),
-      required: true,
     },
 
     productTitle: {

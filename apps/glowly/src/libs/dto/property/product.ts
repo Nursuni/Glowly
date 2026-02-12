@@ -7,7 +7,6 @@ import { MeLiked } from '../like/like';
 import {
   ProductType,
   ProductStatus,
-  BranchLocation,
   VolumeUnit,
   SkinType,
   ProductTarget,
@@ -25,9 +24,6 @@ export class Product {
 
   @Field(() => ProductStatus)
   productStatus: ProductStatus;
-
-  @Field(() => BranchLocation)
-  branchLocation: BranchLocation;
 
   @Field(() => String)
   productTitle: string;

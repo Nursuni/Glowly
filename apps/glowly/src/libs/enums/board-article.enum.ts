@@ -5,6 +5,11 @@ export enum BoardArticleCategory {
   RECOMMEND = 'RECOMMEND',
   NEWS = 'NEWS',
   HUMOR = 'HUMOR',
+  QUESTION = 'QUESTION', // Q&A posts
+  REVIEW = 'REVIEW', // Product reviews
+  TUTORIAL = 'TUTORIAL', // How-to guides
+  DISCUSSION = 'DISCUSSION', // General discussions
+  ANNOUNCEMENT = 'ANNOUNCEMENT', // Official announcements
 }
 registerEnumType(BoardArticleCategory, {
   name: 'BoardArticleCategory',
@@ -13,6 +18,8 @@ registerEnumType(BoardArticleCategory, {
 export enum BoardArticleStatus {
   ACTIVE = 'ACTIVE',
   DELETED = 'DELETED',
+  HIDDEN = 'HIDDEN', // Hidden by moderator/admin
+  REPORTED = 'REPORTED', // Flagged for review
 }
 registerEnumType(BoardArticleStatus, {
   name: 'BoardArticleStatus',

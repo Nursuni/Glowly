@@ -52,21 +52,6 @@ registerEnumType(ProductStatus, {
   name: 'ProductStatus',
 });
 
-export enum BranchLocation {
-  SEOUL = 'SEOUL',
-  BUSAN = 'BUSAN',
-  INCHEON = 'INCHEON',
-  DAEGU = 'DAEGU',
-  GYEONGJU = 'GYEONGJU',
-  GWANGJU = 'GWANGJU',
-  JEONJU = 'JEONJU',
-  DAEJEON = 'DAEJEON',
-  JEJU = 'JEJU',
-}
-registerEnumType(BranchLocation, {
-  name: 'BranchLocation',
-});
-
 export enum DiscountType {
   PERCENTAGE = 'PERCENTAGE',
   FIXED = 'FIXED',
@@ -117,4 +102,147 @@ export enum IngredientType {
 
 registerEnumType(IngredientType, {
   name: 'IngredientType',
+});
+
+// Skincare Subcategories
+export enum SkincareSubtype {
+  CLEANSER = 'CLEANSER',
+  TONER = 'TONER',
+  ESSENCE = 'ESSENCE',
+  SERUM = 'SERUM',
+  MOISTURISER = 'MOISTURISER',
+  EYE_CREAM = 'EYE_CREAM',
+  FACE_MASK = 'FACE_MASK',
+  EXFOLIATOR = 'EXFOLIATOR',
+  FACIAL_OIL = 'FACIAL_OIL',
+  SUNSCREEN = 'SUNSCREEN',
+  LIP_CARE = 'LIP_CARE',
+  NECK_CARE = 'NECK_CARE',
+  FACE_MIST = 'FACE_MIST',
+  SPOT_TREATMENT = 'SPOT_TREATMENT',
+}
+
+registerEnumType(SkincareSubtype, {
+  name: 'SkincareSubtype',
+  description: 'Subcategories for skincare products',
+});
+
+// Makeup Subcategories
+export enum MakeupSubtype {
+  FOUNDATION = 'FOUNDATION',
+  CONCEALER = 'CONCEALER',
+  POWDER = 'POWDER',
+  BLUSH = 'BLUSH',
+  BRONZER = 'BRONZER',
+  HIGHLIGHTER = 'HIGHLIGHTER',
+  EYESHADOW = 'EYESHADOW',
+  EYELINER = 'EYELINER',
+  MASCARA = 'MASCARA',
+  EYEBROW = 'EYEBROW',
+  LIPSTICK = 'LIPSTICK',
+  LIP_GLOSS = 'LIP_GLOSS',
+  LIP_LINER = 'LIP_LINER',
+  MAKEUP_REMOVER = 'MAKEUP_REMOVER',
+  PRIMER = 'PRIMER',
+  SETTING_SPRAY = 'SETTING_SPRAY',
+}
+
+registerEnumType(MakeupSubtype, {
+  name: 'MakeupSubtype',
+  description: 'Subcategories for makeup products',
+});
+
+// Haircare Subcategories
+export enum HaircareSubtype {
+  SHAMPOO = 'SHAMPOO',
+  CONDITIONER = 'CONDITIONER',
+  HAIR_MASK = 'HAIR_MASK',
+  HAIR_OIL = 'HAIR_OIL',
+  STYLING_PRODUCT = 'STYLING_PRODUCT',
+  HAIR_TREATMENT = 'HAIR_TREATMENT',
+  SCALP_CARE = 'SCALP_CARE',
+  HAIR_COLOR = 'HAIR_COLOR',
+}
+
+registerEnumType(HaircareSubtype, {
+  name: 'HaircareSubtype',
+  description: 'Subcategories for haircare products',
+});
+
+// Bodycare Subcategories
+export enum BodycareSubtype {
+  BODY_WASH = 'BODY_WASH',
+  BODY_LOTION = 'BODY_LOTION',
+  BODY_SCRUB = 'BODY_SCRUB',
+  BODY_OIL = 'BODY_OIL',
+  HAND_CREAM = 'HAND_CREAM',
+  FOOT_CARE = 'FOOT_CARE',
+  DEODORANT = 'DEODORANT',
+  BODY_MIST = 'BODY_MIST',
+}
+
+registerEnumType(BodycareSubtype, {
+  name: 'BodycareSubtype',
+  description: 'Subcategories for bodycare products',
+});
+
+// Fragrance Subcategories
+export enum FragranceSubtype {
+  PERFUME = 'PERFUME',
+  COLOGNE = 'COLOGNE',
+  BODY_SPRAY = 'BODY_SPRAY',
+  FRAGRANCE_OIL = 'FRAGRANCE_OIL',
+  SOLID_PERFUME = 'SOLID_PERFUME',
+}
+
+registerEnumType(FragranceSubtype, {
+  name: 'FragranceSubtype',
+  description: 'Subcategories for fragrance products',
+});
+
+// Tools Subcategories
+export enum ToolsSubtype {
+  FACIAL_TOOL = 'FACIAL_TOOL',
+  GUA_SHA = 'GUA_SHA',
+  FACE_ROLLER = 'FACE_ROLLER',
+  MAKEUP_BRUSH = 'MAKEUP_BRUSH',
+  MAKEUP_SPONGE = 'MAKEUP_SPONGE',
+  TWEEZERS = 'TWEEZERS',
+  EYELASH_CURLER = 'EYELASH_CURLER',
+  CLEANSING_CLOTH = 'CLEANSING_CLOTH',
+  HEADBAND = 'HEADBAND',
+}
+
+registerEnumType(ToolsSubtype, {
+  name: 'ToolsSubtype',
+  description: 'Subcategories for beauty tools',
+});
+
+// Nailcare Subcategories
+export enum NailcareSubtype {
+  NAIL_POLISH = 'NAIL_POLISH',
+  NAIL_TREATMENT = 'NAIL_TREATMENT',
+  NAIL_REMOVER = 'NAIL_REMOVER',
+  CUTICLE_CARE = 'CUTICLE_CARE',
+  NAIL_TOOLS = 'NAIL_TOOLS',
+}
+
+registerEnumType(NailcareSubtype, {
+  name: 'NailcareSubtype',
+  description: 'Subcategories for nailcare products',
+});
+
+// Wellness Subcategories
+export enum WellnessSubtype {
+  SUPPLEMENT = 'SUPPLEMENT',
+  VITAMINS = 'VITAMINS',
+  AROMATHERAPY = 'AROMATHERAPY',
+  CANDLE = 'CANDLE',
+  DIFFUSER = 'DIFFUSER',
+  ESSENTIAL_OIL = 'ESSENTIAL_OIL',
+  TEA = 'TEA',
+}
+
+registerEnumType(WellnessSubtype, {
+  name: 'WellnessSubtype',
 });

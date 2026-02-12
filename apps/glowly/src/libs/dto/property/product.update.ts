@@ -14,7 +14,6 @@ import type { ObjectId } from 'mongoose';
 import {
   ProductType,
   ProductStatus,
-  BranchLocation,
   VolumeUnit,
   SkinType,
   ProductTarget,
@@ -37,11 +36,6 @@ export class ProductUpdate {
   @IsEnum(ProductStatus)
   @Field(() => ProductStatus, { nullable: true })
   productStatus?: ProductStatus;
-
-  @IsOptional()
-  @IsEnum(BranchLocation)
-  @Field(() => BranchLocation, { nullable: true })
-  branchLocation?: BranchLocation;
 
   @IsOptional()
   @Length(3, 100)

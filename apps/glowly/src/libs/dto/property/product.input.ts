@@ -9,7 +9,6 @@ import {
 } from 'class-validator';
 import type { ObjectId } from 'mongoose';
 import {
-  BranchLocation,
   ProductType,
   ProductTarget,
   SkinType,
@@ -24,11 +23,6 @@ export class ProductInput {
   @IsNotEmpty()
   @Field(() => ProductType)
   productType: ProductType;
-
-  @IsEnum(BranchLocation)
-  @IsNotEmpty()
-  @Field(() => BranchLocation)
-  branchLocation: BranchLocation;
 
   @IsNotEmpty()
   @Length(3, 100)
@@ -99,12 +93,6 @@ export class ProductSearch {
   @IsEnum(ProductType, { each: true })
   @Field(() => [ProductType], { nullable: true })
   productTypeList?: ProductType[];
-
-  @IsOptional()
-  @IsArray()
-  @IsEnum(BranchLocation, { each: true })
-  @Field(() => [BranchLocation], { nullable: true })
-  branchLocationList?: BranchLocation[];
 
   @IsOptional()
   @IsEnum(ProductTarget)
