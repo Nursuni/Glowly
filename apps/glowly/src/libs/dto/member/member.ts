@@ -36,6 +36,7 @@ export class Member {
 
   @Field(() => String)
   memberImage: string;
+
   @Field(() => Int, { nullable: true })
   memberProducts: number;
 
