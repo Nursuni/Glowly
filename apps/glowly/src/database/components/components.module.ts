@@ -7,6 +7,8 @@ import { ProductModule } from './product/product.module';
 import { ViewModule } from './view/view.module';
 import { AuthModule } from './auth/auth.module';
 import { BoardArticleModule } from './board-article/board-article.module';
+import { OrderModule } from './order/order.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { BoardArticleModule } from './board-article/board-article.module';
     ProductModule,
     ViewModule,
     AuthModule,
+    OrderModule,
+    PaymentModule,
     BoardArticleModule,
   ],
 })

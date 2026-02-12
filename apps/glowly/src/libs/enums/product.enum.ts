@@ -7,37 +7,14 @@ export enum ProductType {
   BODYCARE = 'BODYCARE',
   FRAGRANCE = 'FRAGRANCE',
   TOOLS = 'TOOLS',
-
-  SUNCARE = 'SUNCARE',
+  WELLNESS = 'WELLNESS',
+  GIFT_CARD = 'GIFT_CARD',
   NAILCARE = 'NAILCARE',
-  PERSONAL_CARE = 'PERSONAL_CARE',
   BABYCARE = 'BABYCARE',
-  DERMA_COSMETICS = 'DERMA_COSMETICS',
 }
+
 registerEnumType(ProductType, {
   name: 'ProductType',
-});
-
-export enum ProductSubType {
-  // SKINCARE
-  CLEANSER = 'CLEANSER',
-  TONER = 'TONER',
-  SERUM = 'SERUM',
-  MOISTURIZER = 'MOISTURIZER',
-  MASK = 'MASK',
-
-  // MAKEUP
-  FOUNDATION = 'FOUNDATION',
-  LIPSTICK = 'LIPSTICK',
-  MASCARA = 'MASCARA',
-
-  // HAIR
-  SHAMPOO = 'SHAMPOO',
-  CONDITIONER = 'CONDITIONER',
-  HAIR_OIL = 'HAIR_OIL',
-}
-registerEnumType(ProductSubType, {
-  name: 'ProductSubType',
 });
 
 export enum SkinType {
@@ -67,6 +44,8 @@ export enum ProductStatus {
   // HOLD = 'HOLD',
   ACTIVE = 'ACTIVE',
   OUT_OF_STOCK = 'OUT_OF_STOCK',
+  DISCONTINUED = 'DISCONTINUED', // Product no longer sold
+  COMING_SOON = 'COMING_SOON', // Pre-launch products
   DELETED = 'DELETED',
 }
 registerEnumType(ProductStatus, {
@@ -80,8 +59,8 @@ export enum BranchLocation {
   DAEGU = 'DAEGU',
   GYEONGJU = 'GYEONGJU',
   GWANGJU = 'GWANGJU',
-  CHONJU = 'CHONJU',
-  DAEJON = 'DAEJON',
+  JEONJU = 'JEONJU',
+  DAEJEON = 'DAEJEON',
   JEJU = 'JEJU',
 }
 registerEnumType(BranchLocation, {
@@ -98,9 +77,13 @@ registerEnumType(DiscountType, {
 });
 
 export enum VolumeUnit {
-  ML = 'ML',
-  G = 'G',
-  PCS = 'PCS',
+  ML = 'ML', // Milliliters
+  L = 'L', // Liters
+  G = 'G', // Grams
+  KG = 'KG', // Kilograms
+  OZ = 'OZ', // Ounces
+  FL_OZ = 'FL_OZ', // Fluid Ounces
+  PCS = 'PCS', // Pieces
 }
 
 registerEnumType(VolumeUnit, {
@@ -123,6 +106,12 @@ export enum IngredientType {
   NATURAL = 'NATURAL',
   ORGANIC = 'ORGANIC',
   VEGAN = 'VEGAN',
+  CRUELTY_FREE = 'CRUELTY_FREE',
+  PARABEN_FREE = 'PARABEN_FREE',
+  SULFATE_FREE = 'SULFATE_FREE',
+  FRAGRANCE_FREE = 'FRAGRANCE_FREE',
+  HYPOALLERGENIC = 'HYPOALLERGENIC',
+  DERMATOLOGIST_TESTED = 'DERMATOLOGIST_TESTED',
   CHEMICAL = 'CHEMICAL',
 }
 
