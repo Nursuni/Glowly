@@ -46,4 +46,22 @@ export class MemberResolver {
     const targetId = shapeIntoMongoObjectId(input);
     return await this.memberService.getMember(memberId, targetId);
   }
+
+  @UseGuards(WithoutGuard)
+  @Query(() => Members)
+  public async getAgents(
+    @Args('input') input: AgentsInquiry,
+    @AuthMember('id') memberId: ObjectId,
+  ): Promise<Members> {
+    return await this.memberService.getAgents(memberId, input);
+  }
+  /** AUTHORIZATION: ADMIN */
+  @Roles(MemberType.ADMIN)
+  @UseGuards(RolesGuard)
+  @Query(() => Members)
+  public async getAllMembersByAdmin(
+    @Args('input') input: MembersInquiry,
+  ): Promise<Members> {
+    return await this.memberService.getAllMembersByAdmin(input);
+  }
 }
