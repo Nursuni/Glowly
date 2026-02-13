@@ -22,7 +22,7 @@ export enum MemberAuthType {
   GOOGLE = 'GOOGLE',
   KAKAO = 'KAKAO',
   NAVER = 'NAVER',
-  APPLE = 'APPLE', // iOS users
+  APPLE = 'APPLE',
 }
 registerEnumType(MemberAuthType, { name: 'MemberAuthType' });
 

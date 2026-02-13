@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import { Member } from '../../libs/dto/member/member';
 import { T } from '../../libs/types/common';
 import { JwtService } from '@nestjs/jwt';
@@ -21,8 +21,8 @@ export class AuthService {
   }
   public async createToken(member: Member): Promise<string> {
     const payload: T = {};
-    Object.keys(member['_doc'] ? member['_doc'] : member).map((ele) => {
-      payload[`${ele}`] = member[`${ele}`];
+    Object.keys(member['_doc'] ? member['_doc'] : member).forEach((ele) => {
+      payload[ele] = member[ele];
     });
     delete payload.memberPassword;
     console.log('member:', payload);

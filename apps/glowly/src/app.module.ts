@@ -8,6 +8,7 @@ import { T } from './libs/types/common';
 import { AppResolver } from './app.resolver';
 import { DatabaseModule } from './database/database.module';
 import { ComponentsModule } from './components/components.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { ComponentsModule } from './components/components.module';
         return graphQLFormatError;
       },
     }),
+
     ComponentsModule,
     DatabaseModule,
   ],
