@@ -2,12 +2,13 @@ import { Field, Int, ObjectType, Float } from '@nestjs/graphql';
 import type { ObjectId } from 'mongoose';
 import {
   MemberAuthType,
+  MemberGender,
   MemberStatus,
   MemberType,
 } from '../../enums/member.enum';
 import { MeLiked } from '../like/like';
 import { MeFollowed } from '../follow/follow';
-import { MembershipTier } from '../../enums/member.enum';
+import { MembershipTier } from '../../enums/seller.enum';
 
 @ObjectType()
 export class Member {
@@ -28,6 +29,9 @@ export class Member {
 
   @Field(() => String)
   memberNick: string;
+
+  @Field(() => MemberGender, { nullable: true })
+  memberGender?: MemberGender;
 
   memberPassword?: string;
 

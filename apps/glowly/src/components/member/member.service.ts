@@ -76,11 +76,6 @@ export class MemberService {
     memberId: ObjectId,
     input: MemberUpdate,
   ): Promise<Member> {
-    if (input.memberPassword) {
-      input.memberPassword = await this.authService.hashPassword(
-        input.memberPassword,
-      );
-    }
     const result = await this.memberModel
       .findOneAndUpdate(
         { _id: memberId, memberStatus: MemberStatus.ACTIVE },
@@ -100,7 +95,9 @@ export class MemberService {
   ): Promise<Member> {
     const search: T = {
       _id: targetId,
-      memberStatus: { $in: [MemberStatus.ACTIVE, MemberStatus.BLOCKED] },
+      memberStatus: {
+        $in: [MemberStatus.ACTIVE, MemberStatus.INACTIVE, MemberStatus.BLOCKED],
+      },
     };
     const targetMember = await this.memberModel.findOne(search).exec();
     if (!targetMember) throw new NotFoundException(Message.NO_DATA_FOUND);

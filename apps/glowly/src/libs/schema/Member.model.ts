@@ -1,5 +1,10 @@
 import { Schema } from 'mongoose';
-import { MemberAuthType, MemberStatus, MemberType } from '../enums/member.enum';
+import {
+  MemberAuthType,
+  MemberGender,
+  MemberStatus,
+  MemberType,
+} from '../enums/member.enum';
 
 //Schema first, Code first
 const MemberSchema = new Schema(
@@ -41,7 +46,12 @@ const MemberSchema = new Schema(
     memberDesc: {
       type: String,
     },
-
+    // ✅ Add Gender field
+    memberGender: {
+      type: String,
+      enum: MemberGender,
+      required: false,
+    },
     memberImage: {
       type: String,
       default: '',
@@ -59,6 +69,7 @@ const MemberSchema = new Schema(
     memberComments: { type: Number, default: 0 },
     memberRank: { type: Number, default: 0 },
     memberWarnings: { type: Number, default: 0 },
+
     memberBlocks: { type: Number, default: 0 },
     deletedAt: { type: Date },
   },
