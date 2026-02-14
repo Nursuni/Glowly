@@ -19,17 +19,17 @@ import { MemberStatus } from '../../libs/enums/member.enum';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { AuthService } from '../auth/auth.service';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
+
+import { T } from '../../libs/types/common';
+import { ViewService } from '../view/view.service';
 import { ViewInput } from '../../libs/dto/view/view.input';
 import { ViewGroup } from '../../libs/enums/view.enum';
-import { LikeGroup } from '../../libs/enums/like.enum';
-import { Follower, Following } from '../../libs/dto/follow/follow';
-import { T } from '../../libs/types/common';
 
 @Injectable()
 export class MemberService {
   constructor(
     @InjectModel('Member') private readonly memberModel: Model<Member>,
-
+    private viewService: ViewService,
     private authService: AuthService,
   ) {}
   public async signup(input: MemberInput): Promise<Member> {
@@ -93,6 +93,8 @@ export class MemberService {
     memberId: ObjectId,
     targetId: ObjectId,
   ): Promise<Member> {
+    console.log('memberId in getMember:', memberId);
+
     const search: T = {
       _id: targetId,
       memberStatus: {
@@ -101,7 +103,20 @@ export class MemberService {
     };
     const targetMember = await this.memberModel.findOne(search).exec();
     if (!targetMember) throw new NotFoundException(Message.NO_DATA_FOUND);
-
+    if (memberId) {
+      const viewIpnut: ViewInput = {
+        memberId: memberId,
+        viewRefId: targetId,
+        viewGroup: ViewGroup.MEMBER,
+      };
+      const newView = await this.viewService.recordView(viewIpnut);
+      if (newView) {
+        await this.memberModel
+          .findOneAndUpdate(search, { $inc: { memberViews: 1 } }, { new: true })
+          .exec();
+        targetMember.memberViews++;
+      }
+    }
     return targetMember;
   }
 

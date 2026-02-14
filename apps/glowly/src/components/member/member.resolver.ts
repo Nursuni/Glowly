@@ -39,6 +39,7 @@ export class MemberResolver {
     console.log('Mutation: checkAuthRoles');
     return `Hi ${authMember.memberNick}, your are ${authMember.memberType} (memberId ${authMember._id})`;
   }
+
   @Mutation(() => Member)
   public async signup(@Args('input') input: MemberInput): Promise<Member> {
     console.log('Mutation: signup');
@@ -66,7 +67,7 @@ export class MemberResolver {
   @Query(() => Member)
   public async getMember(
     @Args('memberId') input: string,
-    @AuthMember('id') memberId: mongoose.ObjectId,
+    @AuthMember('_id') memberId: mongoose.ObjectId,
   ): Promise<Member> {
     const targetId = shapeIntoMongoObjectId(input);
     return await this.memberService.getMember(memberId, targetId);
