@@ -6,7 +6,11 @@ import {
   MemberStatus,
   MemberType,
 } from '../../enums/member.enum';
-import { availableSellersSorts, availableMemberSorts } from '../../config';
+import {
+  availableSellersSorts,
+  availableMemberSorts,
+  availableSellerSorts,
+} from '../../config';
 import { Direction } from '../../enums/common.enum';
 
 @InputType()
@@ -50,7 +54,7 @@ export class LoginInput {
 }
 
 @InputType()
-export class AISearch {
+export class SISearch {
   @IsNotEmpty()
   @Field(() => String, { nullable: true })
   text?: string;
@@ -95,4 +99,30 @@ export class MembersInquiry {
   @IsNotEmpty()
   @Field(() => MISearch)
   search: MISearch;
+}
+
+@InputType()
+export class SellersInquiry {
+  @IsNotEmpty()
+  @Min(1)
+  @Field(() => Int)
+  page: number;
+
+  @IsNotEmpty()
+  @Min(1)
+  @Field(() => Int)
+  limit: number;
+
+  @IsOptional()
+  @IsIn(availableSellerSorts)
+  @Field(() => String, { nullable: true })
+  sort?: string;
+
+  @IsOptional()
+  @Field(() => Direction, { nullable: true })
+  direction?: Direction;
+
+  @IsOptional()
+  @Field(() => SISearch, { nullable: true })
+  search?: SISearch;
 }

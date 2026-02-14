@@ -5,6 +5,7 @@ import {
   LoginInput,
   MemberInput,
   MembersInquiry,
+  SellersInquiry,
 } from '../../libs/dto/member/member.input';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { UseGuards } from '@nestjs/common';
@@ -81,5 +82,14 @@ export class MemberResolver {
     @Args('input') input: MembersInquiry,
   ): Promise<Members> {
     return await this.memberService.getAllMembersByAdmin(input);
+  }
+
+  @UseGuards(WithoutGuard)
+  @Query(() => Members)
+  public async getSellers(
+    @Args('input') input: SellersInquiry,
+    @AuthMember('id') memberId: mongoose.ObjectId,
+  ): Promise<Members> {
+    return await this.memberService.getSellers(memberId, input);
   }
 }
