@@ -1,5 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { Model } from 'mongoose';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import { Model, ObjectId } from 'mongoose';
 import { Product } from '../../libs/dto/product/product';
 import { InjectModel } from '@nestjs/mongoose';
 import { ViewService } from '../view/view.service';
@@ -7,6 +11,11 @@ import { AuthService } from '../auth/auth.service';
 import { ProductInput } from '../../libs/dto/product/product.input';
 import { Message } from '../../libs/enums/common.enum';
 import { MemberService } from '../member/member.service';
+import { StatisticModifier, T } from '../../libs/types/common';
+import { ProductStatus } from '../../libs/enums/product.enum';
+import { ViewGroup } from '../../libs/enums/view.enum';
+import { LikeGroup } from '../../libs/enums/like.enum';
+import { LikeService } from '../like/like.service';
 
 @Injectable()
 export class ProductService {
@@ -15,6 +24,7 @@ export class ProductService {
     private viewService: ViewService,
     private memberService: MemberService,
     private authService: AuthService,
+    private likeService: LikeService,
   ) {}
 
   public async createProduct(input: ProductInput): Promise<Product> {
@@ -30,5 +40,66 @@ export class ProductService {
       console.log('err Service model', err.message);
       throw new BadRequestException(Message.UPDATE_FAILED);
     }
+  }
+
+  public async getProduct(
+    memberId: ObjectId,
+    productId: ObjectId,
+  ): Promise<Product> {
+    const search: T = {
+      _id: productId,
+      productStatus: ProductStatus.ACTIVE,
+    };
+
+    const targetProduct: Product = await this.productModel
+      .findOne(search)
+      .lean()
+      .exec();
+    if (!targetProduct)
+      throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+    if (memberId) {
+      const viewInput = {
+        memberId: memberId,
+        viewRefId: productId,
+        viewGroup: ViewGroup.PRODUCT,
+      };
+      const newView = await this.viewService.recordView(viewInput);
+      if (newView) {
+        await this.productStatsEditor({
+          _id: productId,
+          targetKey: 'productViews',
+          modifier: 1,
+        });
+        targetProduct.productViews++;
+      }
+      // meLiked
+      const likeInput = {
+        memberId: memberId,
+        likeRefId: productId,
+        likeGroup: LikeGroup.PRODUCT,
+      };
+      targetProduct.meLiked =
+        await this.likeService.checkLikeExistence(likeInput);
+      // meFollowed
+    }
+    targetProduct.memberData = await this.memberService.getMember(
+      null,
+      targetProduct.memberId,
+    );
+    return targetProduct;
+  }
+
+  public async productStatsEditor(input: StatisticModifier): Promise<Product> {
+    const { _id, targetKey, modifier } = input;
+    return await this.productModel
+      .findByIdAndUpdate(
+        _id,
+        { $inc: { [targetKey]: modifier } },
+        {
+          new: true,
+        },
+      )
+      .exec();
   }
 }
