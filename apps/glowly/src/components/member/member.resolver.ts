@@ -40,7 +40,7 @@ export class MemberResolver {
     console.log('Mutation: checkAuthRoles');
     return `Hi ${authMember.memberNick}, your are ${authMember.memberType} (memberId ${authMember._id})`;
   }
-
+  //TODO: ADD gender
   @Mutation(() => Member)
   public async signup(@Args('input') input: MemberInput): Promise<Member> {
     console.log('Mutation: signup');
@@ -88,8 +88,19 @@ export class MemberResolver {
   @Query(() => Members)
   public async getSellers(
     @Args('input') input: SellersInquiry,
-    @AuthMember('id') memberId: mongoose.ObjectId,
+    @AuthMember('_id') memberId: mongoose.ObjectId,
   ): Promise<Members> {
     return await this.memberService.getSellers(memberId, input);
+  }
+
+  /** AUTHORIZATION: ADMIN */
+  @Roles(MemberType.ADMIN)
+  @UseGuards(RolesGuard)
+  @Mutation(() => Member)
+  public async updateMemberByAdmin(
+    @Args('input') input: MemberUpdate,
+  ): Promise<Member> {
+    console.log('Mutation: updateMemberByAdmin');
+    return await this.memberService.updateMemberByAdmin(input);
   }
 }

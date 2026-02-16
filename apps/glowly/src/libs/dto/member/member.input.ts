@@ -34,7 +34,7 @@ export class MemberInput {
 
   @IsOptional()
   @Field(() => MemberGender, { nullable: true })
-  membersGender?: MemberGender;
+  memberGender?: MemberGender;
 
   @IsOptional()
   @Field(() => MemberAuthType, { nullable: true })
@@ -54,13 +54,6 @@ export class LoginInput {
 }
 
 @InputType()
-export class SISearch {
-  @IsNotEmpty()
-  @Field(() => String, { nullable: true })
-  text?: string;
-}
-
-@InputType()
 export class MISearch {
   @IsOptional()
   @Field(() => MemberStatus, { nullable: true })
@@ -70,7 +63,7 @@ export class MISearch {
   @Field(() => MemberType, { nullable: true })
   memberType?: MemberType;
 
-  @IsNotEmpty()
+  @IsOptional()
   @Field(() => String, { nullable: true })
   text?: string;
 }
@@ -96,11 +89,17 @@ export class MembersInquiry {
   @Field(() => Direction, { nullable: true })
   direction?: Direction;
 
-  @IsNotEmpty()
-  @Field(() => MISearch)
-  search: MISearch;
+  @IsOptional()
+  @Field(() => MISearch, { nullable: true })
+  search?: MISearch;
 }
 
+@InputType()
+export class SISearch {
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  text?: string;
+}
 @InputType()
 export class SellersInquiry {
   @IsNotEmpty()

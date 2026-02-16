@@ -22,6 +22,14 @@ export const availableProductSorts = [
   'productPrice',
 ];
 
+export const availableSellerSorts = [
+  'createdAt',
+  'updatedAt',
+  'memberLikes',
+  'memberViews',
+  'memberRank',
+];
+
 export const availableCommentSorts = ['createdAt', 'updatedAt'];
 
 // IMAGE CONFIGURATION (config.js)

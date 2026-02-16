@@ -123,7 +123,7 @@ export class MemberService {
   }
 
   public async getAllMembersByAdmin(input: MembersInquiry): Promise<Members> {
-    const { text, memberStatus, memberType } = input.search;
+    const { text, memberStatus, memberType } = input.search ?? {};
     const match: T = {};
     const sort: T = {
       [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
@@ -158,7 +158,7 @@ export class MemberService {
     memberId: ObjectId,
     input: SellersInquiry,
   ): Promise<Members> {
-    const { text } = input.search ?? {};
+    const text = input.search?.text;
     const match: T = {
       memberType: MemberType.SELLER,
       memberStatus: MemberStatus.ACTIVE,
@@ -166,7 +166,9 @@ export class MemberService {
     const sort: T = {
       [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
     };
-    if (text) match.memberNick = { $regex: new RegExp(text, 'i') };
+    if (text) {
+      match.memberNick = { $regex: text, $options: 'i' };
+    }
 
     const result = await this.memberModel
       .aggregate([
@@ -188,5 +190,13 @@ export class MemberService {
     if (!result.length)
       throw new InternalServerErrorException(Message.NO_DATA_FOUND);
     return result[0];
+  }
+
+  public async updateMemberByAdmin(input: MemberUpdate): Promise<Member> {
+    const result = await this.memberModel
+      .findOneAndUpdate({ _id: input._id }, input, { new: true })
+      .exec();
+    if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+    return result;
   }
 }
