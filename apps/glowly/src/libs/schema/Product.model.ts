@@ -113,6 +113,6 @@ const ProductSchema = new Schema(
   { timestamps: true, collection: 'products' },
 );
 
-ProductSchema.index({ productType: 1, branchLocation: 1, productTitle: 1 });
+ProductSchema.index({ productType: 1, productTitle: 1 });
 
 export default ProductSchema;
