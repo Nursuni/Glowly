@@ -47,6 +47,7 @@ export enum ProductStatus {
   DISCONTINUED = 'DISCONTINUED', // Product no longer sold
   COMING_SOON = 'COMING_SOON', // Pre-launch products
   DELETED = 'DELETED',
+  SOLD = 'SOLD',
 }
 registerEnumType(ProductStatus, {
   name: 'ProductStatus',

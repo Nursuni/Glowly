@@ -1,4 +1,10 @@
+// IMAGE CONFIGURATION (config.js)
+import { v4 as uuidv4 } from 'uuid';
+import * as path from 'path';
+import { T } from './types/common';
+import { pipeline } from 'stream';
 import { ObjectId } from 'bson';
+
 export const availableSellersSorts = [
   'createdAt',
   'updatedAt',
@@ -31,12 +37,6 @@ export const availableSellerSorts = [
 ];
 
 export const availableCommentSorts = ['createdAt', 'updatedAt'];
-
-// IMAGE CONFIGURATION (config.js)
-import { v4 as uuidv4 } from 'uuid';
-import * as path from 'path';
-import { T } from './types/common';
-import { pipeline } from 'stream';
 
 export const validMimeTypes = ['image/png', 'image/jpg', 'image/jpeg'];
 export const getSerialForImage = (filename: string) => {

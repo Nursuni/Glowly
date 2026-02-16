@@ -105,5 +105,7 @@ export class ProductUpdate {
 
   @Field(() => Date, { nullable: true })
   expiresAt?: Date;
+
   deletedAt?: Date;
+  soldAt?: Date;
 }

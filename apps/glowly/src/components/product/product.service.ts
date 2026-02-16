@@ -16,6 +16,8 @@ import { ProductStatus } from '../../libs/enums/product.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeService } from '../like/like.service';
+import { ProductUpdate } from '../../libs/dto/product/product.update';
+import moment from 'moment';
 
 @Injectable()
 export class ProductService {
@@ -101,5 +103,39 @@ export class ProductService {
         },
       )
       .exec();
+  }
+
+  public async updateProduct(
+    memberId: ObjectId,
+    input: ProductUpdate,
+  ): Promise<Product> {
+    let { productStatus, soldAt, deletedAt } = input;
+    const search: T = {
+      _id: input._id,
+      memberId: memberId,
+      productStatus: ProductStatus.ACTIVE,
+    };
+
+    if (productStatus === ProductStatus.SOLD) soldAt = moment().toDate();
+    else if (productStatus === ProductStatus.DELETED)
+      deletedAt = moment().toDate();
+
+    const result = await this.productModel
+      .findOneAndUpdate(search, input, {
+        new: true,
+      })
+      .exec();
+
+    if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+
+    if (soldAt || deletedAt) {
+      await this.memberService.memberStatsEditor({
+        _id: memberId,
+        targetKey: 'memberProperties',
+        modifier: -1,
+      });
+    }
+
+    return result;
   }
 }
