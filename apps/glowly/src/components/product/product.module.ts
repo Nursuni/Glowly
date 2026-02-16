@@ -17,7 +17,6 @@ import ProductSchema from '../../libs/schema/Product.model';
     LikeModule,
   ],
   providers: [ProductService, ProductResolver],
-
   exports: [ProductService],
 })
 export class ProductModule {}

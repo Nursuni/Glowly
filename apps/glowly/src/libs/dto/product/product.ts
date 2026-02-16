@@ -81,6 +81,12 @@ export class Product {
   @Field(() => Date)
   updatedAt: Date;
 
+  @Field(() => Date, { nullable: true })
+  manufacturedAt?: Date;
+
+  @Field(() => Date, { nullable: true })
+  expiresAt?: Date;
+
   /** from aggregation **/
 
   @Field(() => Member, { nullable: true })

@@ -100,5 +100,10 @@ export class ProductUpdate {
   @Field(() => String, { nullable: true })
   productDesc?: string;
 
+  @Field(() => Date, { nullable: true })
+  manufacturedAt?: Date;
+
+  @Field(() => Date, { nullable: true })
+  expiresAt?: Date;
   deletedAt?: Date;
 }

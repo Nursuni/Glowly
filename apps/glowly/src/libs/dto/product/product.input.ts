@@ -46,7 +46,7 @@ export class ProductInput {
 
   @IsOptional()
   @Field(() => Int, { nullable: true })
-  volume?: number;
+  volume: number;
 
   @IsOptional()
   @IsEnum(VolumeUnit)
@@ -56,17 +56,17 @@ export class ProductInput {
   @IsOptional()
   @IsArray()
   @Field(() => [SkinType], { nullable: true })
-  skinType?: SkinType[];
+  skinType: SkinType[];
 
   @IsOptional()
   @IsEnum(ProductTarget)
   @Field(() => ProductTarget, { nullable: true })
-  productTarget?: ProductTarget;
+  productTarget: ProductTarget;
 
   @IsOptional()
   @IsArray()
   @Field(() => [IngredientType], { nullable: true })
-  ingredientType?: IngredientType[];
+  ingredientType: IngredientType[];
 
   @IsOptional()
   @Min(0)
@@ -81,8 +81,15 @@ export class ProductInput {
   @IsOptional()
   @Length(5, 1000)
   @Field(() => String, { nullable: true })
-  productDesc?: string;
+  productDesc: string;
 
+  @IsOptional()
+  @Field(() => Date, { nullable: true })
+  manufacturedAt?: Date;
+
+  @IsOptional()
+  @Field(() => Date, { nullable: true })
+  expiresAt?: Date;
   memberId?: ObjectId;
 }
 
