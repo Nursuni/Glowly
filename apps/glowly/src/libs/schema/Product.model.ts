@@ -7,6 +7,7 @@ import {
   ProductTarget,
   DiscountType,
   IngredientType,
+  AgeRange,
 } from '../enums/product.enum';
 
 const ProductSchema = new Schema(
@@ -17,10 +18,6 @@ const ProductSchema = new Schema(
       required: true,
     },
     //TODO: correct the SUbt
-    productSubType: {
-      type: String,
-      enum: Object.values(ProductType),
-    },
 
     productStatus: {
       type: String,
@@ -59,18 +56,23 @@ const ProductSchema = new Schema(
     skinType: {
       type: [String],
       enum: Object.values(SkinType),
+      default: [],
     },
-
     productTarget: {
       type: String,
       enum: Object.values(ProductTarget),
     },
-
     ingredientType: {
       type: [String],
       enum: Object.values(IngredientType),
+      default: [],
     },
 
+    ageRange: {
+      type: [String],
+      enum: Object.values(AgeRange),
+      default: [],
+    },
     stock: {
       type: Number,
       default: 0,
@@ -114,5 +116,9 @@ const ProductSchema = new Schema(
 );
 
 ProductSchema.index({ productType: 1, productTitle: 1 });
+ProductSchema.index({
+  productTitle: 'text',
+  productDesc: 'text',
+});
 
 export default ProductSchema;

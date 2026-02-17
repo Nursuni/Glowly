@@ -12,6 +12,7 @@ import {
   ProductTarget,
   DiscountType,
   IngredientType,
+  AgeRange,
 } from '../../enums/product.enum';
 
 @ObjectType()
@@ -27,6 +28,9 @@ export class Product {
 
   @Field(() => String)
   productTitle: string;
+
+  @Field(() => [AgeRange], { nullable: true })
+  ageRange?: AgeRange[];
 
   @Field(() => Float)
   productPrice: number;

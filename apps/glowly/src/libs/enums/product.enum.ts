@@ -43,7 +43,6 @@ registerEnumType(ProductTarget, {
 export enum ProductStatus {
   // HOLD = 'HOLD',
   ACTIVE = 'ACTIVE',
-  OUT_OF_STOCK = 'OUT_OF_STOCK',
   DISCONTINUED = 'DISCONTINUED', // Product no longer sold
   COMING_SOON = 'COMING_SOON', // Pre-launch products
   DELETED = 'DELETED',
@@ -53,6 +52,17 @@ registerEnumType(ProductStatus, {
   name: 'ProductStatus',
 });
 
+export enum AgeRange {
+  TEENS = 'TEENS',
+  TWENTIES = 'TWENTIES',
+  THIRTIES = 'THIRTIES',
+  FORTIES = 'FORTIES',
+  FIFTY_PLUS = 'FIFTY_PLUS',
+}
+
+registerEnumType(AgeRange, {
+  name: 'AgeRange',
+});
 export enum DiscountType {
   PERCENTAGE = 'PERCENTAGE',
   FIXED = 'FIXED',

@@ -15,6 +15,7 @@ import {
   DiscountType,
   VolumeUnit,
   IngredientType,
+  AgeRange,
 } from '../../enums/product.enum';
 
 @InputType()
@@ -29,6 +30,7 @@ export class ProductInput {
   @Field(() => String)
   productTitle: string;
 
+  memberId?: ObjectId;
   @IsNotEmpty()
   @Min(0)
   @Field(() => Float)
@@ -55,18 +57,25 @@ export class ProductInput {
 
   @IsOptional()
   @IsArray()
+  @IsEnum(SkinType, { each: true })
   @Field(() => [SkinType], { nullable: true })
-  skinType: SkinType[];
+  skinType?: SkinType[];
 
   @IsOptional()
   @IsEnum(ProductTarget)
   @Field(() => ProductTarget, { nullable: true })
   productTarget: ProductTarget;
+  @IsOptional()
+  @IsArray()
+  @IsEnum(AgeRange, { each: true })
+  @Field(() => [AgeRange], { nullable: true })
+  ageRange?: AgeRange[];
 
   @IsOptional()
   @IsArray()
+  @IsEnum(IngredientType, { each: true })
   @Field(() => [IngredientType], { nullable: true })
-  ingredientType: IngredientType[];
+  ingredientType?: IngredientType[];
 
   @IsOptional()
   @Min(0)
@@ -81,7 +90,7 @@ export class ProductInput {
   @IsOptional()
   @Length(5, 1000)
   @Field(() => String, { nullable: true })
-  productDesc: string;
+  productDesc?: string;
 
   @IsOptional()
   @Field(() => Date, { nullable: true })
@@ -90,11 +99,22 @@ export class ProductInput {
   @IsOptional()
   @Field(() => Date, { nullable: true })
   expiresAt?: Date;
-  memberId?: ObjectId;
+}
+
+@InputType()
+export class PricesRange {
+  @Field(() => Int)
+  start: number;
+
+  @Field(() => Int)
+  end: number;
 }
 
 @InputType()
 export class ProductSearch {
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  memberId?: ObjectId;
   @IsOptional()
   @IsArray()
   @IsEnum(ProductType, { each: true })
@@ -109,6 +129,23 @@ export class ProductSearch {
   @IsOptional()
   @Field(() => String, { nullable: true })
   text?: string;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  productDesc?: string;
+  @IsOptional()
+  @IsArray()
+  @IsEnum(SkinType, { each: true })
+  @Field(() => [SkinType], { nullable: true })
+  skinType?: SkinType[];
+  @IsOptional()
+  @Field(() => PricesRange, { nullable: true })
+  pricesRange?: PricesRange;
+  @IsOptional()
+  @IsArray()
+  @IsEnum(AgeRange, { each: true })
+  @Field(() => [AgeRange], { nullable: true })
+  ageRange?: AgeRange[];
 }
 
 @InputType()

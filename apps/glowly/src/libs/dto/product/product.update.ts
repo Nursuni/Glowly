@@ -19,6 +19,7 @@ import {
   ProductTarget,
   DiscountType,
   IngredientType,
+  AgeRange,
 } from '../../enums/product.enum';
 
 @InputType()
@@ -80,6 +81,12 @@ export class ProductUpdate {
 
   @IsOptional()
   @IsArray()
+  @IsEnum(AgeRange, { each: true })
+  @Field(() => [AgeRange], { nullable: true })
+  ageRange?: AgeRange[];
+
+  @IsOptional()
+  @IsArray()
   @IsEnum(IngredientType, { each: true })
   @Field(() => [IngredientType], { nullable: true })
   ingredientType?: IngredientType[];
@@ -100,9 +107,11 @@ export class ProductUpdate {
   @Field(() => String, { nullable: true })
   productDesc?: string;
 
+  @IsOptional()
   @Field(() => Date, { nullable: true })
   manufacturedAt?: Date;
 
+  @IsOptional()
   @Field(() => Date, { nullable: true })
   expiresAt?: Date;
 

@@ -4,12 +4,15 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { Model, ObjectId } from 'mongoose';
-import { Product } from '../../libs/dto/product/product';
+import { Product, Products } from '../../libs/dto/product/product';
 import { InjectModel } from '@nestjs/mongoose';
 import { ViewService } from '../view/view.service';
 import { AuthService } from '../auth/auth.service';
-import { ProductInput } from '../../libs/dto/product/product.input';
-import { Message } from '../../libs/enums/common.enum';
+import {
+  ProductInput,
+  ProductsInquiry,
+} from '../../libs/dto/product/product.input';
+import { Direction, Message } from '../../libs/enums/common.enum';
 import { MemberService } from '../member/member.service';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { ProductStatus } from '../../libs/enums/product.enum';
@@ -18,6 +21,11 @@ import { LikeGroup } from '../../libs/enums/like.enum';
 import { LikeService } from '../like/like.service';
 import { ProductUpdate } from '../../libs/dto/product/product.update';
 import moment from 'moment';
+import {
+  lookupAuthMemberLiked,
+  lookupMember,
+  shapeIntoMongoObjectId,
+} from '../../libs/config';
 
 @Injectable()
 export class ProductService {
@@ -116,14 +124,14 @@ export class ProductService {
       productStatus: ProductStatus.ACTIVE,
     };
 
-    if (productStatus === ProductStatus.SOLD) soldAt = moment().toDate();
-    else if (productStatus === ProductStatus.DELETED)
-      deletedAt = moment().toDate();
+    if (productStatus === ProductStatus.SOLD) {
+      input.soldAt = moment().toDate();
+    } else if (productStatus === ProductStatus.DELETED) {
+      input.deletedAt = moment().toDate();
+    }
 
     const result = await this.productModel
-      .findOneAndUpdate(search, input, {
-        new: true,
-      })
+      .findOneAndUpdate(search, { $set: input }, { new: true })
       .exec();
 
     if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
@@ -131,11 +139,78 @@ export class ProductService {
     if (soldAt || deletedAt) {
       await this.memberService.memberStatsEditor({
         _id: memberId,
-        targetKey: 'memberProperties',
+        targetKey: 'memberProducts',
         modifier: -1,
       });
     }
 
     return result;
+  }
+
+  public async getProducts(
+    memberId: ObjectId,
+    input: ProductsInquiry,
+  ): Promise<Products> {
+    const match: T = { productStatus: ProductStatus.ACTIVE };
+    const sort: T = {
+      [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
+    };
+
+    this.shapeMatchQuery(match, input); //
+    console.log('match:', match);
+
+    const result = await this.productModel
+      .aggregate([
+        { $match: match },
+        { $sort: sort },
+        {
+          $facet: {
+            list: [
+              { $skip: (input.page - 1) * input.limit },
+              { $limit: input.limit },
+              lookupAuthMemberLiked(memberId),
+              lookupMember,
+              { $unwind: '$memberData' },
+            ],
+            metaCounter: [{ $count: 'total' }],
+          },
+        },
+      ])
+      .exec();
+
+    if (!result.length)
+      throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+    return result[0];
+  }
+
+  private shapeMatchQuery(match: T, input: ProductsInquiry): void {
+    const {
+      memberId,
+      text,
+      skinType,
+      productTypeList,
+      productTarget,
+      ageRange,
+      pricesRange,
+    } = input.search;
+    if (skinType && skinType.length) {
+      match.skinType = { $in: skinType };
+    }
+    if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
+
+    if (productTypeList && productTypeList.length) {
+      match.productType = { $in: productTypeList };
+    }
+    if (ageRange?.length) {
+      match.ageRange = { $in: ageRange };
+    }
+    if (productTarget) {
+      match.productTarget = productTarget;
+    }
+    if (pricesRange)
+      match.productPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
+
+    match.$text = { $search: text };
   }
 }

@@ -4,8 +4,11 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { UseGuards } from '@nestjs/common';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { Product } from '../../libs/dto/product/product';
-import { ProductInput } from '../../libs/dto/product/product.input';
+import { Product, Products } from '../../libs/dto/product/product';
+import {
+  ProductInput,
+  ProductsInquiry,
+} from '../../libs/dto/product/product.input';
 import * as mongoose from 'mongoose';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { shapeIntoMongoObjectId } from '../../libs/config';
@@ -51,5 +54,15 @@ export class ProductResolver {
     console.log('Mutation: updateProduct');
     input._id = shapeIntoMongoObjectId(input._id);
     return await this.productService.updateProduct(memberId, input);
+  }
+
+  @UseGuards(WithoutGuard)
+  @Query((returns) => Products)
+  public async getProducts(
+    @Args('input') input: ProductsInquiry,
+    @AuthMember('_id') memberId: mongoose.ObjectId,
+  ): Promise<Products> {
+    console.log('Query: getProducts');
+    return await this.productService.getProducts(memberId, input);
   }
 }
