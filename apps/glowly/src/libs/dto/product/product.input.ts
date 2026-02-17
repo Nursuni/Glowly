@@ -197,7 +197,7 @@ class SPISearch {
 }
 
 @InputType()
-export class SellerPropertiesInquiry {
+export class SellerProductsInquiry {
   @IsNotEmpty()
   @Min(1)
   @Field(() => Int)
@@ -220,4 +220,41 @@ export class SellerPropertiesInquiry {
   @IsNotEmpty()
   @Field(() => SPISearch)
   search: SPISearch;
+}
+
+@InputType()
+class ALPISearch {
+  @IsOptional()
+  @Field(() => ProductStatus, { nullable: true })
+  productStatus?: ProductStatus;
+
+  @IsOptional()
+  @Field(() => [ProductType], { nullable: true })
+  productTypeList?: ProductType[];
+}
+
+@InputType()
+export class AllProductsInquiry {
+  @IsNotEmpty()
+  @Min(1)
+  @Field(() => Int)
+  page: number;
+
+  @IsNotEmpty()
+  @Min(1)
+  @Field(() => Int)
+  limit: number;
+
+  @IsOptional()
+  @IsIn(availableProductSorts)
+  @Field(() => String, { nullable: true })
+  sort?: string;
+
+  @IsOptional()
+  @Field(() => Direction, { nullable: true })
+  direction?: Direction;
+
+  @IsNotEmpty()
+  @Field(() => ALPISearch)
+  search: ALPISearch;
 }

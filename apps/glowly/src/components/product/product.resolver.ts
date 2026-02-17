@@ -6,9 +6,10 @@ import { UseGuards } from '@nestjs/common';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Product, Products } from '../../libs/dto/product/product';
 import {
+  AllProductsInquiry,
   ProductInput,
   ProductsInquiry,
-  SellerPropertiesInquiry,
+  SellerProductsInquiry,
 } from '../../libs/dto/product/product.input';
 import * as mongoose from 'mongoose';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
@@ -70,11 +71,23 @@ export class ProductResolver {
   @Roles(MemberType.SELLER)
   @UseGuards(RolesGuard)
   @Query((returns) => Products)
-  public async getSellerProperties(
-    @Args('input') input: SellerPropertiesInquiry,
+  public async getSellerProducts(
+    @Args('input') input: SellerProductsInquiry,
     @AuthMember('_id') memberId: mongoose.ObjectId,
   ): Promise<Products> {
-    console.log('Query: getAgentProperties');
-    return await this.productService.getSellerProperties(memberId, input);
+    console.log('Query: getAgentProducts');
+    return await this.productService.getSellerProducts(memberId, input);
+  }
+
+  /**ADMIN */
+  @Roles(MemberType.ADMIN)
+  @UseGuards(RolesGuard)
+  @Query((returns) => Products)
+  public async getAllProductsByAdmin(
+    @Args('input') input: AllProductsInquiry,
+    @AuthMember('_id') memberId: mongoose.ObjectId,
+  ): Promise<Products> {
+    console.log('Query: getAllProductsByAdmin');
+    return await this.productService.getAllProductsByAdmin(input);
   }
 }

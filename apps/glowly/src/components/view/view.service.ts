@@ -27,7 +27,7 @@ export class ViewService {
     return await this.viewModel.findOne(search).exec();
   }
 
-  public async getVisitedProperties(
+  public async getVisitedProducts(
     memberId: ObjectId,
     input: OrdinaryInquiry,
   ): Promise<Products> {

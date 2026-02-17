@@ -9,9 +9,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ViewService } from '../view/view.service';
 import { AuthService } from '../auth/auth.service';
 import {
+  AllProductsInquiry,
   ProductInput,
   ProductsInquiry,
-  SellerPropertiesInquiry,
+  SellerProductsInquiry,
 } from '../../libs/dto/product/product.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { MemberService } from '../member/member.service';
@@ -215,9 +216,9 @@ export class ProductService {
     match.$text = { $search: text };
   }
 
-  public async getSellerProperties(
+  public async getSellerProducts(
     memberId: ObjectId,
-    input: SellerPropertiesInquiry,
+    input: SellerProductsInquiry,
   ): Promise<Products> {
     const { productStatus } = input.search;
     if (productStatus === ProductStatus.DELETED)
@@ -230,6 +231,44 @@ export class ProductService {
     const sort: T = {
       [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
     };
+
+    const result = await this.productModel
+      .aggregate([
+        { $match: match },
+        { $sort: sort },
+        {
+          $facet: {
+            list: [
+              { $skip: (input.page - 1) * input.limit },
+              { $limit: input.limit },
+              lookupMember,
+              { $unwind: '$memberData' },
+            ],
+            metaCounter: [{ $count: 'total' }],
+          },
+        },
+      ])
+      .exec();
+
+    if (!result.length)
+      throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+    return result[0];
+  }
+
+  public async getAllProductsByAdmin(
+    input: AllProductsInquiry,
+  ): Promise<Products> {
+    const { productStatus, productTypeList } = input.search;
+    const match: T = {};
+    const sort: T = {
+      [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
+    };
+
+    if (productStatus) match.productStatus = productStatus;
+    if (productTypeList?.length) {
+      match.productType = { $in: productTypeList };
+    }
 
     const result = await this.productModel
       .aggregate([
