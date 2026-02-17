@@ -115,7 +115,7 @@ const ProductSchema = new Schema(
   { timestamps: true, collection: 'products' },
 );
 
-ProductSchema.index({ productType: 1, productTitle: 1 });
+ProductSchema.index({ memberId: 1, productStatus: 1, createdAt: -1 });
 ProductSchema.index({
   productTitle: 'text',
   productDesc: 'text',

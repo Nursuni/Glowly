@@ -6,6 +6,8 @@ import {
   Min,
   IsEnum,
   IsArray,
+  IsIn,
+  ArrayMinSize,
 } from 'class-validator';
 import type { ObjectId } from 'mongoose';
 import {
@@ -16,7 +18,10 @@ import {
   VolumeUnit,
   IngredientType,
   AgeRange,
+  ProductStatus,
 } from '../../enums/product.enum';
+import { Direction } from '../../enums/common.enum';
+import { availableProductSorts } from '../../config';
 
 @InputType()
 export class ProductInput {
@@ -48,7 +53,7 @@ export class ProductInput {
 
   @IsOptional()
   @Field(() => Int, { nullable: true })
-  volume: number;
+  volume?: number;
 
   @IsOptional()
   @IsEnum(VolumeUnit)
@@ -64,7 +69,8 @@ export class ProductInput {
   @IsOptional()
   @IsEnum(ProductTarget)
   @Field(() => ProductTarget, { nullable: true })
-  productTarget: ProductTarget;
+  productTarget?: ProductTarget;
+
   @IsOptional()
   @IsArray()
   @IsEnum(AgeRange, { each: true })
@@ -84,6 +90,7 @@ export class ProductInput {
 
   @IsNotEmpty()
   @IsArray()
+  @ArrayMinSize(1)
   @Field(() => [String])
   productImages: string[];
 
@@ -181,4 +188,36 @@ export class OrdinaryInquiry {
   @Min(1)
   @Field(() => Int)
   limit: number;
+}
+@InputType()
+class SPISearch {
+  @IsOptional()
+  @Field(() => ProductStatus, { nullable: true })
+  productStatus?: ProductStatus;
+}
+
+@InputType()
+export class SellerPropertiesInquiry {
+  @IsNotEmpty()
+  @Min(1)
+  @Field(() => Int)
+  page: number;
+
+  @IsNotEmpty()
+  @Min(1)
+  @Field(() => Int)
+  limit: number;
+
+  @IsOptional()
+  @IsIn(availableProductSorts)
+  @Field(() => String, { nullable: true })
+  sort?: string;
+
+  @IsOptional()
+  @Field(() => Direction, { nullable: true })
+  direction?: Direction;
+
+  @IsNotEmpty()
+  @Field(() => SPISearch)
+  search: SPISearch;
 }

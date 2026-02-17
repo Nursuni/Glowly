@@ -11,6 +11,7 @@ import { AuthService } from '../auth/auth.service';
 import {
   ProductInput,
   ProductsInquiry,
+  SellerPropertiesInquiry,
 } from '../../libs/dto/product/product.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { MemberService } from '../member/member.service';
@@ -212,5 +213,45 @@ export class ProductService {
       match.productPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
 
     match.$text = { $search: text };
+  }
+
+  public async getSellerProperties(
+    memberId: ObjectId,
+    input: SellerPropertiesInquiry,
+  ): Promise<Products> {
+    const { productStatus } = input.search;
+    if (productStatus === ProductStatus.DELETED)
+      throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
+
+    const match: T = {
+      memberId: memberId,
+      productStatus: productStatus ?? { $ne: ProductStatus.DELETED },
+    };
+    const sort: T = {
+      [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
+    };
+
+    const result = await this.productModel
+      .aggregate([
+        { $match: match },
+        { $sort: sort },
+        {
+          $facet: {
+            list: [
+              { $skip: (input.page - 1) * input.limit },
+              { $limit: input.limit },
+              lookupMember,
+              { $unwind: '$memberData' },
+            ],
+            metaCounter: [{ $count: 'total' }],
+          },
+        },
+      ])
+      .exec();
+
+    if (!result.length)
+      throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+    return result[0];
   }
 }
