@@ -24,6 +24,7 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Message } from '../../libs/enums/common.enum';
 import { GraphQLUpload, FileUpload } from 'graphql-upload';
 import { createWriteStream } from 'fs';
+import { T } from '../../libs/types/common';
 
 @Resolver()
 export class MemberResolver {
@@ -171,6 +172,7 @@ export class MemberResolver {
               .on('finish', () => resolve(true))
               .on('error', () => reject(false));
           });
+          console.log('Mutation: here');
           if (!result) throw new Error(Message.UPLOAD_FAILED);
 
           uploadedImages[index] = url;

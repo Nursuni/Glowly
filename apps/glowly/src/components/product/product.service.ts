@@ -212,10 +212,9 @@ export class ProductService {
     }
     if (pricesRange)
       match.productPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
-
-    match.$text = { $search: text };
   }
-
+  //TODO: text
+  //if (text) match.productTitle = { $regex: new RegExp(text, 'i') };
   public async getSellerProducts(
     memberId: ObjectId,
     input: SellerProductsInquiry,
@@ -292,5 +291,41 @@ export class ProductService {
       throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
     return result[0];
+  }
+
+  public async updateProductByAdmin(input: ProductUpdate): Promise<Product> {
+    let { productStatus, soldAt, deletedAt } = input;
+    const search: T = {
+      _id: input._id,
+      productStatus: ProductStatus.ACTIVE,
+    };
+
+    if (productStatus === ProductStatus.SOLD) input.soldAt = moment().toDate();
+    else if (productStatus === ProductStatus.DELETED)
+      input.deletedAt = moment().toDate();
+
+    const result = await this.productModel
+      .findOneAndUpdate(search, { $set: input }, { new: true })
+      .exec();
+
+    if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+
+    if (soldAt || deletedAt) {
+      await this.memberService.memberStatsEditor({
+        _id: result.memberId,
+        targetKey: 'memberProducts',
+        modifier: -1,
+      });
+    }
+
+    return result;
+  }
+
+  public async removeProductByAdmin(productId: ObjectId): Promise<Product> {
+    const search: T = { _id: productId, productStatus: ProductStatus.DELETED };
+    const result = await this.productModel.findOneAndDelete(search).exec();
+
+    if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+    return result;
   }
 }

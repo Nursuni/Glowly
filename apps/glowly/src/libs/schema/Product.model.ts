@@ -116,9 +116,5 @@ const ProductSchema = new Schema(
 );
 
 ProductSchema.index({ memberId: 1, productStatus: 1, createdAt: -1 });
-ProductSchema.index({
-  productTitle: 'text',
-  productDesc: 'text',
-});
 
 export default ProductSchema;
