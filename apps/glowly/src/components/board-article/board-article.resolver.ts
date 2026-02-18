@@ -1,0 +1,23 @@
+import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { BoardArticleService } from './board-article.service';
+import { BoardArticle } from '../../libs/dto/board-article/board-article';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { BoardArticleInput } from '../../libs/dto/board-article/board-article.input';
+import * as mongoose from 'mongoose';
+import { AuthMember } from '../auth/decorators/authMember.decorator';
+
+@Resolver()
+export class BoardArticleResolver {
+  constructor(private readonly boardArticleService: BoardArticleService) {}
+
+  @UseGuards(AuthGuard)
+  @Mutation((returns) => BoardArticle)
+  public async createBoardArticle(
+    @Args('input') input: BoardArticleInput,
+    @AuthMember('_id') memberId: mongoose.ObjectId,
+  ): Promise<BoardArticle> {
+    console.log('Mutation: createBoardArticle');
+    return await this.boardArticleService.createBoardArticle(memberId, input);
+  }
+}
