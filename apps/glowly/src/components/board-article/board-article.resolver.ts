@@ -20,4 +20,15 @@ export class BoardArticleResolver {
     console.log('Mutation: createBoardArticle');
     return await this.boardArticleService.createBoardArticle(memberId, input);
   }
+
+  @UseGuards(WithoutGuard)
+  @Query((returns) => BoardArticle)
+  public async getBoardArticle(
+    @Args('articleId') input: string,
+    @AuthMember('_id') memberId: ObjectId,
+  ): Promise<BoardArticle> {
+    console.log('Query: getBoardArticle');
+    const articleId = shapeIntoMongoObjectId(input);
+    return await this.boardArticleService.getBoardArticle(memberId, articleId);
+  }
 }
