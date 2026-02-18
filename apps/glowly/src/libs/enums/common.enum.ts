@@ -30,6 +30,7 @@ export enum Message {
   INSUFFICIENT_STOCK = 'Insufficient stock available!',
   PRODUCT_NOT_AVAILABLE = 'Product is not available!',
   ALREADY_PURCHASED = 'You have already purchased this product!',
+  ALREADY_REPORTED = 'ALREADY_REPORTED',
 }
 
 export enum Direction {

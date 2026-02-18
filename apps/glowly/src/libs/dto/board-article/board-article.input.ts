@@ -3,6 +3,7 @@ import { IsIn, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
 import type { ObjectId } from 'mongoose';
 import {
   BoardArticleCategory,
+  BoardArticleReportReason,
   BoardArticleStatus,
 } from '../../enums/board-article.enum';
 import { Direction } from '../../enums/common.enum';
@@ -24,12 +25,26 @@ export class BoardArticleInput {
   articleContent: string;
 
   @IsOptional()
+  @Field(() => [String], { nullable: true })
+  articleTags?: string[];
+
+  @IsOptional()
   @Field(() => String, { nullable: true })
   articleImage?: string;
 
   memberId?: ObjectId;
 }
 
+@InputType()
+export class ReportBoardArticleInput {
+  @IsNotEmpty()
+  @Field(() => String)
+  articleId: string;
+
+  @IsNotEmpty()
+  @Field(() => BoardArticleReportReason)
+  reason: BoardArticleReportReason;
+}
 @InputType()
 class BAISearch {
   @IsOptional()
@@ -106,4 +121,17 @@ export class AllBoardArticlesInquiry {
   @IsNotEmpty()
   @Field(() => ABAISearch)
   search: ABAISearch;
+}
+
+@InputType()
+export class BoardArticlesByTagInput {
+  @IsNotEmpty()
+  @Field(() => String)
+  tag: string;
+
+  @Field(() => Int, { defaultValue: 1 })
+  page: number;
+
+  @Field(() => Int, { defaultValue: 10 })
+  limit: number;
 }

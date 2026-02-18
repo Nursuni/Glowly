@@ -23,3 +23,20 @@ export enum BoardArticleStatus {
 registerEnumType(BoardArticleStatus, {
   name: 'BoardArticleStatus',
 });
+
+export enum BoardArticlePriority {
+  NORMAL = 'NORMAL',
+  PINNED = 'PINNED',
+  FEATURED = 'FEATURED',
+}
+registerEnumType(BoardArticlePriority, { name: 'BoardArticlePriority' });
+
+export enum BoardArticleReportReason {
+  SPAM = 'SPAM',
+  INAPPROPRIATE = 'INAPPROPRIATE',
+  MISINFORMATION = 'MISINFORMATION',
+  HARASSMENT = 'HARASSMENT',
+}
+registerEnumType(BoardArticleReportReason, {
+  name: 'BoardArticleReportReason',
+});

@@ -10,6 +10,7 @@ import {
   AllBoardArticlesInquiry,
   BoardArticleInput,
   BoardArticlesInquiry,
+  ReportBoardArticleInput,
 } from '../../libs/dto/board-article/board-article.input';
 import * as mongoose from 'mongoose';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
@@ -99,5 +100,19 @@ export class BoardArticleResolver {
     console.log('Mutation: removeBoardArticleByAdmin');
     const articleId = shapeIntoMongoObjectId(input);
     return await this.boardArticleService.removeBoardArticleByAdmin(articleId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => BoardArticle)
+  public async likeTargetBoardArticle(
+    @Args('articleId') input: string,
+    @AuthMember('_id') memberId: mongoose.ObjectId,
+  ): Promise<BoardArticle> {
+    console.log('Mutation: likeTargetBoardArticle');
+    const likeRefId = shapeIntoMongoObjectId(input);
+    return await this.boardArticleService.likeTargetBoardArticle(
+      memberId,
+      likeRefId,
+    );
   }
 }
