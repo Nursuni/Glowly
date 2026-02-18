@@ -67,6 +67,20 @@ export class BoardArticleResolver {
     return await this.boardArticleService.getBoardArticles(memberId, input);
   }
 
+  @UseGuards(AuthGuard)
+  @Mutation(() => BoardArticle)
+  public async likeTargetBoardArticle(
+    @Args('articleId') input: string,
+    @AuthMember('_id') memberId: mongoose.ObjectId,
+  ): Promise<BoardArticle> {
+    console.log('Mutation: likeTargetBoardArticle');
+    const likeRefId = shapeIntoMongoObjectId(input);
+    return await this.boardArticleService.likeTargetBoardArticle(
+      memberId,
+      likeRefId,
+    );
+  }
+
   @Roles(MemberType.ADMIN)
   @UseGuards(RolesGuard)
   @Query((returns) => BoardArticles)
@@ -77,7 +91,6 @@ export class BoardArticleResolver {
     console.log('Query: getAllBoardArticlesByAdmin');
     return await this.boardArticleService.getAllBoardArticlesByAdmin(input);
   }
-
   @Roles(MemberType.ADMIN)
   @UseGuards(RolesGuard)
   @Mutation(() => BoardArticle)
@@ -100,19 +113,5 @@ export class BoardArticleResolver {
     console.log('Mutation: removeBoardArticleByAdmin');
     const articleId = shapeIntoMongoObjectId(input);
     return await this.boardArticleService.removeBoardArticleByAdmin(articleId);
-  }
-
-  @UseGuards(AuthGuard)
-  @Mutation(() => BoardArticle)
-  public async likeTargetBoardArticle(
-    @Args('articleId') input: string,
-    @AuthMember('_id') memberId: mongoose.ObjectId,
-  ): Promise<BoardArticle> {
-    console.log('Mutation: likeTargetBoardArticle');
-    const likeRefId = shapeIntoMongoObjectId(input);
-    return await this.boardArticleService.likeTargetBoardArticle(
-      memberId,
-      likeRefId,
-    );
   }
 }

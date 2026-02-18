@@ -12,6 +12,13 @@ export const availableSellersSorts = [
   'memberViews',
   'memberRank',
 ];
+export const availableBoardArticleSort = [
+  'createdAt',
+  'updatedAt',
+  'articleLikes',
+  'articleViews',
+];
+
 export const availableMemberSorts = [
   'createdAt',
   'updatedAt',
