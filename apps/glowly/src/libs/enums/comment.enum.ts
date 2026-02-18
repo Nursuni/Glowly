@@ -3,7 +3,7 @@ import { registerEnumType } from '@nestjs/graphql';
 export enum CommentStatus {
   ACTIVE = 'ACTIVE',
   DELETED = 'DELETED',
-  HIDDEN = 'HIDDEN', // Hidden by moderator
+  HIDDEN = 'HIDDEN', // Hidden by admin
   REPORTED = 'REPORTED', // Flagged for review
 }
 registerEnumType(CommentStatus, {

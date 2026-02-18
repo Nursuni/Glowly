@@ -4,7 +4,6 @@ export enum BoardArticleCategory {
   FREE = 'FREE',
   RECOMMEND = 'RECOMMEND',
   NEWS = 'NEWS',
-  HUMOR = 'HUMOR',
   QUESTION = 'QUESTION', // Q&A posts
   REVIEW = 'REVIEW', // Product reviews
   TUTORIAL = 'TUTORIAL', // How-to guides
@@ -18,7 +17,7 @@ registerEnumType(BoardArticleCategory, {
 export enum BoardArticleStatus {
   ACTIVE = 'ACTIVE',
   DELETED = 'DELETED',
-  HIDDEN = 'HIDDEN', // Hidden by moderator/admin
+  HIDDEN = 'HIDDEN', // Hidden by admin
   REPORTED = 'REPORTED', // Flagged for review
 }
 registerEnumType(BoardArticleStatus, {
