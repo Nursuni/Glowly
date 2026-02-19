@@ -16,6 +16,7 @@ import { AuthMember } from '../auth/decorators/authMember.decorator';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { ProductUpdate } from '../../libs/dto/product/product.update';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Resolver()
 export class ProductResolver {
@@ -111,5 +112,16 @@ export class ProductResolver {
     console.log('Mutation: removeProductByAdmin');
     const productId = shapeIntoMongoObjectId(input);
     return await this.productService.removeProductByAdmin(productId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => Product)
+  public async likeTargetProduct(
+    @Args('productId') input: string,
+    @AuthMember('_id') memberId: mongoose.ObjectId,
+  ): Promise<Product> {
+    console.log('Mutation: likeTargetProduct');
+    const likeRefId = shapeIntoMongoObjectId(input);
+    return await this.productService.likeTargetProduct(memberId, likeRefId);
   }
 }

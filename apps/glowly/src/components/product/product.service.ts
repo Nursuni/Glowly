@@ -28,6 +28,7 @@ import {
   lookupMember,
   shapeIntoMongoObjectId,
 } from '../../libs/config';
+import { LikeInput } from '../../libs/dto/like/like.input';
 
 @Injectable()
 export class ProductService {
@@ -327,5 +328,33 @@ export class ProductService {
 
     if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
     return result;
+  }
+
+  public async likeTargetProduct(
+    memberId: ObjectId,
+    likeRefId: ObjectId,
+  ): Promise<Product> {
+    const target: Product = await this.productModel
+      .findOne({ _id: likeRefId, productStatus: ProductStatus.ACTIVE })
+      .exec();
+    if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+    const input: LikeInput = {
+      memberId: memberId,
+      likeRefId: likeRefId,
+      likeGroup: LikeGroup.PRODUCT,
+    };
+
+    const modifier: number = await this.likeService.toggleLike(input);
+    const result = await this.productStatsEditor({
+      _id: likeRefId,
+      targetKey: 'productLikes',
+      modifier: modifier,
+    });
+
+    if (!result)
+      throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
+    return result;
+    // LIKE TOGGLE
   }
 }

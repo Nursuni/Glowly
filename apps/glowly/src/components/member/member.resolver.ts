@@ -190,7 +190,7 @@ export class MemberResolver {
   @Mutation(() => Member)
   public async likeTargetMember(
     @Args('memberId') input: string,
-    @AuthMember('_id') memberId: ObjectId,
+    @AuthMember('_id') memberId: mongoose.ObjectId,
   ): Promise<Member> {
     console.log('Mutation: likeTargetMember');
     const likeRefId = shapeIntoMongoObjectId(input);
