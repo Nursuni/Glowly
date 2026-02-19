@@ -82,10 +82,12 @@ export class FollowService {
     if (!targetMember)
       throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
-    const result = await this.followModel.findOneAndDelete({
-      followingId: followingId,
-      followerId: followerId,
-    });
+    const result = await this.followModel
+      .findOneAndDelete({
+        followingId: followingId,
+        followerId: followerId,
+      })
+      .exec();
 
     if (!result) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
