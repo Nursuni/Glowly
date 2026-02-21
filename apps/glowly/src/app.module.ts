@@ -9,6 +9,7 @@ import { AppResolver } from './app.resolver';
 import { DatabaseModule } from './database/database.module';
 import { ComponentsModule } from './components/components.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 
     ComponentsModule,
     DatabaseModule,
+    SocketModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppResolver],

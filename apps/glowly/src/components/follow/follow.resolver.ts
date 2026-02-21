@@ -28,7 +28,7 @@ export class FollowResolver {
   @Mutation((returns) => Follower)
   public async unsubscribe(
     @Args('input') input: string,
-    @AuthMember('_id') memberId: ObjectId, //
+    @AuthMember('_id') memberId: ObjectId,
   ): Promise<Follower> {
     console.log('Mutation: unsubscribe');
     const followingId = shapeIntoMongoObjectId(input);

@@ -1,8 +1,10 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
-  UseGuards,
+  Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import type { Model, ObjectId } from 'mongoose';
 import {
@@ -25,6 +27,8 @@ import {
 
 @Injectable()
 export class FollowService {
+  private readonly logger = new Logger(FollowService.name);
+
   constructor(
     @InjectModel('Follow')
     private readonly followModel: Model<Follower | Following>,
@@ -36,12 +40,11 @@ export class FollowService {
     followingId: ObjectId,
   ): Promise<Follower> {
     if (followerId.toString() === followingId.toString()) {
-      throw new InternalServerErrorException(Message.SELF_SUBSCRIPTION_DENIED);
+      throw new BadRequestException(Message.SELF_SUBSCRIPTION_DENIED);
     }
 
     const targetMember = await this.memberService.getMember(null, followingId);
-    if (!targetMember)
-      throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+    if (!targetMember) throw new NotFoundException(Message.NO_DATA_FOUND);
 
     const result = await this.registerSubscription(followerId, followingId);
 
@@ -68,8 +71,13 @@ export class FollowService {
         followingId: followingId,
         followerId: followerId,
       });
-    } catch (err) {
-      console.log('Error, Service.model:', err.message);
+    } catch (err: unknown) {
+      this.logger.error('Failed to create follow relation', err);
+
+      if (this.isDuplicateKeyError(err)) {
+        throw new ConflictException('Already subscribed');
+      }
+
       throw new BadRequestException(Message.CREATE_FAILED);
     }
   }
@@ -79,8 +87,7 @@ export class FollowService {
     followingId: ObjectId,
   ): Promise<Follower> {
     const targetMember = await this.memberService.getMember(null, followingId);
-    if (!targetMember)
-      throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+    if (!targetMember) throw new NotFoundException(Message.NO_DATA_FOUND);
 
     const result = await this.followModel
       .findOneAndDelete({
@@ -89,7 +96,7 @@ export class FollowService {
       })
       .exec();
 
-    if (!result) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+    if (!result) throw new NotFoundException(Message.NO_DATA_FOUND);
 
     await this.memberService.memberStatsEditor({
       _id: followerId,
@@ -110,10 +117,8 @@ export class FollowService {
     input: FollowInquiry,
   ): Promise<Followings> {
     const { page, limit, search } = input; //destruct
-    if (!search?.followerId)
-      throw new InternalServerErrorException(Message.BAD_REQUEST);
+    if (!search?.followerId) throw new BadRequestException(Message.BAD_REQUEST);
     const match: T = { followerId: search?.followerId };
-    console.log('match:', match);
 
     const result = await this.followModel
       .aggregate([
@@ -138,7 +143,7 @@ export class FollowService {
       ])
       .exec();
 
-    if (!result.length)
+    if (!result?.length)
       throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
     return result[0];
@@ -150,10 +155,9 @@ export class FollowService {
   ): Promise<Followers> {
     const { page, limit, search } = input;
     if (!search?.followingId)
-      throw new InternalServerErrorException(Message.BAD_REQUEST);
+      throw new BadRequestException(Message.BAD_REQUEST);
 
     const match: T = { followingId: search?.followingId };
-    console.log('match:', match);
 
     const result = await this.followModel
       .aggregate([
@@ -178,9 +182,15 @@ export class FollowService {
       ])
       .exec();
 
-    if (!result.length)
+    if (!result?.length)
       throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
     return result[0];
+  }
+
+  private isDuplicateKeyError(err: unknown): boolean {
+    if (!err || typeof err !== 'object') return false;
+    const maybeMongoError = err as { code?: number };
+    return maybeMongoError.code === 11000;
   }
 }

@@ -86,7 +86,7 @@ export class ProductService {
         });
         targetProduct.productViews++;
       }
-      // meLiked
+
       const likeInput = {
         memberId: memberId,
         likeRefId: productId,
@@ -94,7 +94,6 @@ export class ProductService {
       };
       targetProduct.meLiked =
         await this.likeService.checkLikeExistence(likeInput);
-      // meFollowed
     }
     targetProduct.memberData = await this.memberService.getMember(
       null,
