@@ -76,7 +76,7 @@ export class ProductResolver {
     @Args('input') input: SellerProductsInquiry,
     @AuthMember('_id') memberId: mongoose.ObjectId,
   ): Promise<Products> {
-    console.log('Query: getAgentProducts');
+    console.log('Query: getbatchSellersProducts');
     return await this.productService.getSellerProducts(memberId, input);
   }
 
