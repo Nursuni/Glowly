@@ -21,22 +21,28 @@ import { OrderStatus, PaymentStatus } from '../../libs/enums/order.enum';
 import { MemberType } from '../../libs/enums/member.enum';
 import { ProductStatus } from '../../libs/enums/product.enum';
 import { Direction } from '../../libs/enums/common.enum';
+import { NotificationService } from '../notification/notification.service';
+import {
+  NotificationGroup,
+  NotificationType,
+} from '../../libs/enums/notification.enum';
 
 // delivery fee rules
 const DELIVERY_FEES: Record<string, number> = {
   STANDARD: 3000,
-  EXPRESS:  6000,
+  EXPRESS: 6000,
   SAME_DAY: 10000,
-  PICKUP:   0,
+  PICKUP: 0,
 };
 const FREE_DELIVERY_THRESHOLD = 50000;
 
 @Injectable()
 export class OrderService {
   constructor(
-    @InjectModel('Order')   private readonly orderModel: Model<Order>,
+    @InjectModel('Order') private readonly orderModel: Model<Order>,
     @InjectModel('Product') private readonly productModel: Model<Product>,
-    @InjectModel('Member')  private readonly memberModel: Model<Member>,
+    @InjectModel('Member') private readonly memberModel: Model<Member>,
+    private readonly notificationService: NotificationService,
   ) {}
 
   // ─────────────────────────────────────────────
@@ -45,7 +51,7 @@ export class OrderService {
   async createOrder(memberId: ObjectId, input: OrderInput): Promise<Order> {
     // 1. validate all products exist, are ACTIVE, and have enough stock
     const productIds = input.orderItems.map((i) => i.productId);
-    const products   = await this.productModel.find({
+    const products = await this.productModel.find({
       _id: { $in: productIds },
       productStatus: ProductStatus.ACTIVE,
     });
@@ -71,7 +77,7 @@ export class OrderService {
 
       return {
         productId: item.productId,
-        itemQty:   item.itemQty,
+        itemQty: item.itemQty,
         itemPrice: unitPrice * item.itemQty,
         itemShade: item.itemShade,
       };
@@ -100,7 +106,7 @@ export class OrderService {
       deliveryFee,
       discountAmount,
       orderTotal,
-      orderStatus:   OrderStatus.PENDING,
+      orderStatus: OrderStatus.PENDING,
       paymentStatus: PaymentStatus.UNPAID,
     });
 
@@ -119,6 +125,15 @@ export class OrderService {
     await this.memberModel.findByIdAndUpdate(memberId, {
       $inc: { memberOrders: 1 },
     });
+    await this.notificationService.createNotification({
+      notificationType: NotificationType.ORDER,
+      notificationGroup: NotificationGroup.ORDER,
+      notificationTitle: 'Order placed successfully',
+      notificationDesc: `Your order total is ₩${order.orderTotal.toLocaleString()}`,
+      authorId: memberId,
+      receiverId: memberId, // buyer notifies themselves
+      orderId: order._id,
+    });
 
     return order;
   }
@@ -131,27 +146,27 @@ export class OrderService {
       .aggregate([
         {
           $match: {
-            _id:      orderId,
-            memberId: memberId,   // customer can only see their own
+            _id: orderId,
+            memberId: memberId, // customer can only see their own
           },
         },
         // populate member
         {
           $lookup: {
-            from:         'members',
-            localField:   'memberId',
+            from: 'members',
+            localField: 'memberId',
             foreignField: '_id',
-            as:           'memberData',
+            as: 'memberData',
           },
         },
         { $unwind: { path: '$memberData', preserveNullAndEmptyArrays: true } },
         // populate products inside orderItems
         {
           $lookup: {
-            from:         'products',
-            localField:   'orderItems.productId',
+            from: 'products',
+            localField: 'orderItems.productId',
             foreignField: '_id',
-            as:           'productsData',
+            as: 'productsData',
           },
         },
       ])
@@ -179,15 +194,15 @@ export class OrderService {
         {
           $facet: {
             list: [
-              { $sort:  { [sortKey]: sortDir } },
-              { $skip:  (page - 1) * limit },
+              { $sort: { [sortKey]: sortDir } },
+              { $skip: (page - 1) * limit },
               { $limit: limit },
               {
                 $lookup: {
-                  from:         'products',
-                  localField:   'orderItems.productId',
+                  from: 'products',
+                  localField: 'orderItems.productId',
                   foreignField: '_id',
-                  as:           'productsData',
+                  as: 'productsData',
                 },
               },
             ],
@@ -214,9 +229,7 @@ export class OrderService {
       orderStatus === OrderStatus.CANCELLED &&
       order.orderStatus !== OrderStatus.PENDING
     ) {
-      throw new BadRequestException(
-        'Only PENDING orders can be cancelled',
-      );
+      throw new BadRequestException('Only PENDING orders can be cancelled');
     }
 
     // restore stock on cancel
@@ -235,20 +248,34 @@ export class OrderService {
 
     const updated = await this.orderModel.findByIdAndUpdate(
       _id,
-      { $set: { orderStatus, orderNote, cancelledAt: orderStatus === OrderStatus.CANCELLED ? new Date() : undefined } },
+      {
+        $set: {
+          orderStatus,
+          orderNote,
+          cancelledAt:
+            orderStatus === OrderStatus.CANCELLED ? new Date() : undefined,
+        },
+      },
       { new: true },
     );
-
+    if (orderStatus === OrderStatus.SHIPPED) {
+      await this.notificationService.createNotification({
+        notificationType: NotificationType.DELIVERY,
+        notificationGroup: NotificationGroup.ORDER,
+        notificationTitle: 'Your order has been shipped!',
+        notificationDesc: `Your order is on its way!`,
+        authorId: memberId,
+        receiverId: order.memberId,
+        orderId: order._id,
+      });
+    }
     return updated;
   }
 
   // ─────────────────────────────────────────────
   //  ALL ORDERS  (admin)
   // ─────────────────────────────────────────────
-  async getAllOrders(
-    admin: Member,
-    input: AllOrdersInquiry,
-  ): Promise<Orders> {
+  async getAllOrders(admin: Member, input: AllOrdersInquiry): Promise<Orders> {
     if (admin.memberType !== MemberType.ADMIN) {
       throw new ForbiddenException('Admin access required');
     }
@@ -257,7 +284,7 @@ export class OrderService {
     const match: Record<string, any> = {};
 
     if (search.orderStatus) match.orderStatus = search.orderStatus;
-    if (search.memberId)    match.memberId    = search.memberId;
+    if (search.memberId) match.memberId = search.memberId;
 
     const sortDir = direction === Direction.ASC ? 1 : -1;
     const sortKey = sort ?? 'createdAt';
@@ -268,18 +295,23 @@ export class OrderService {
         {
           $facet: {
             list: [
-              { $sort:  { [sortKey]: sortDir } },
-              { $skip:  (page - 1) * limit },
+              { $sort: { [sortKey]: sortDir } },
+              { $skip: (page - 1) * limit },
               { $limit: limit },
               {
                 $lookup: {
-                  from:         'members',
-                  localField:   'memberId',
+                  from: 'members',
+                  localField: 'memberId',
                   foreignField: '_id',
-                  as:           'memberData',
+                  as: 'memberData',
                 },
               },
-              { $unwind: { path: '$memberData', preserveNullAndEmptyArrays: true } },
+              {
+                $unwind: {
+                  path: '$memberData',
+                  preserveNullAndEmptyArrays: true,
+                },
+              },
             ],
             metaCounter: [{ $count: 'total' }],
           },
@@ -293,10 +325,7 @@ export class OrderService {
   // ─────────────────────────────────────────────
   //  PRIVATE — coupon logic (stub, wire to your coupon collection)
   // ─────────────────────────────────────────────
-  private async applyCoupon(
-    code: string,
-    itemsTotal: number,
-  ): Promise<number> {
+  private async applyCoupon(code: string, itemsTotal: number): Promise<number> {
     // TODO: query your coupons collection here
     // return the discount amount (not percentage)
     // throw BadRequestException if invalid / expired

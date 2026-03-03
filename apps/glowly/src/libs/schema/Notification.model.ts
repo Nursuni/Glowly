@@ -46,6 +46,7 @@ const NotificationSchema = new Schema(
       ref: 'Member',
     },
 
+    // optional deep-link refs
     productId: {
       type: Schema.Types.ObjectId,
       ref: 'Product',
@@ -55,8 +56,20 @@ const NotificationSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'BoardArticle',
     },
+
+    orderId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Order',
+    },
   },
   { timestamps: true, collection: 'notifications' },
 );
+
+// fetch my notifications fast
+NotificationSchema.index({
+  receiverId: 1,
+  notificationStatus: 1,
+  createdAt: -1,
+});
 
 export default NotificationSchema;

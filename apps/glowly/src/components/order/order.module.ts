@@ -7,6 +7,7 @@ import { AuthModule } from '../auth/auth.module';
 import OrderSchema from '../../libs/schema/Order.model';
 import ProductSchema from '../../libs/schema/Product.model';
 import MemberSchema from '../../libs/schema/Member.model';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import MemberSchema from '../../libs/schema/Member.model';
       { name: 'Member', schema: MemberSchema },
     ]),
     AuthModule,
+    NotificationModule,
   ],
   providers: [OrderResolver, OrderService],
   exports: [OrderService],

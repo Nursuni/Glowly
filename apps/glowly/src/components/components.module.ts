@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { BoardArticleModule } from './board-article/board-article.module';
 import { OrderModule } from './order/order.module';
 import { PaymentModule } from './payment/payment.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { PaymentModule } from './payment/payment.module';
     OrderModule,
     PaymentModule,
     BoardArticleModule,
+    NotificationModule,
   ],
 })
 export class ComponentsModule {}

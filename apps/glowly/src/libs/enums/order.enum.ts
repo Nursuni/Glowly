@@ -1,3 +1,5 @@
+import { registerEnumType } from '@nestjs/graphql';
+
 export enum OrderStatus {
   PENDING = 'PENDING', // just placed, awaiting payment
   CONFIRMED = 'CONFIRMED', // payment received
@@ -7,7 +9,9 @@ export enum OrderStatus {
   CANCELLED = 'CANCELLED',
   REFUNDED = 'REFUNDED',
 }
-
+registerEnumType(OrderStatus, {
+  name: 'OrderStatus',
+});
 export enum PaymentMethod {
   CARD = 'CARD',
   BANK_TRANSFER = 'BANK_TRANSFER',
@@ -15,6 +19,9 @@ export enum PaymentMethod {
   NAVER_PAY = 'NAVER_PAY',
   CASH = 'CASH',
 }
+registerEnumType(PaymentMethod, {
+  name: 'PaymentMethod',
+});
 
 export enum PaymentStatus {
   UNPAID = 'UNPAID',
@@ -22,6 +29,9 @@ export enum PaymentStatus {
   FAILED = 'FAILED',
   REFUNDED = 'REFUNDED',
 }
+registerEnumType(PaymentStatus, {
+  name: 'PaymentStatus',
+});
 
 export enum DeliveryMethod {
   STANDARD = 'STANDARD',
@@ -29,3 +39,6 @@ export enum DeliveryMethod {
   SAME_DAY = 'SAME_DAY',
   PICKUP = 'PICKUP',
 }
+registerEnumType(DeliveryMethod, {
+  name: 'DeliveryMethod',
+});
