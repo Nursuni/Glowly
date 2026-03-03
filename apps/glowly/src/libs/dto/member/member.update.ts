@@ -11,7 +11,7 @@ import type { ObjectId } from 'mongoose';
 export class MemberUpdate {
   @IsNotEmpty()
   @Field(() => String)
-  _id?: ObjectId;
+  _id: ObjectId;
 
   @IsOptional()
   @Field(() => MemberStatus, { nullable: true })

@@ -1,5 +1,13 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsIn, IsNotEmpty, IsOptional, Length, Min } from 'class-validator';
+import {
+  IsEmail,
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
+  Length,
+  Min,
+} from 'class-validator';
 import {
   MemberAuthType,
   MemberGender,
@@ -26,8 +34,10 @@ export class MemberInput {
   memberPassword: string;
 
   @IsNotEmpty()
+  @IsPhoneNumber('KR')
   @Field(() => String)
   memberPhone: string;
+
   @IsOptional()
   @Field(() => MemberType, { nullable: true })
   memberType?: MemberType;

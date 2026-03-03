@@ -165,13 +165,13 @@ export class ProductsInquiry {
   @Field(() => Int)
   limit: number;
 
-  @IsOptional()
+  @IsIn(availableProductSorts)
   @Field(() => String, { nullable: true })
   sort?: string;
 
   @IsOptional()
   @Field(() => Int, { nullable: true })
-  direction?: number;
+  direction?: Direction;
 
   @Field(() => ProductSearch)
   search: ProductSearch;

@@ -46,7 +46,7 @@ const MemberSchema = new Schema(
     memberDesc: {
       type: String,
     },
-    // ✅ Add Gender field
+
     memberGender: {
       type: String,
       enum: MemberGender,
