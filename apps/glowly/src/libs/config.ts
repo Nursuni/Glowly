@@ -5,6 +5,8 @@ import { T } from './types/common';
 import { pipeline } from 'stream';
 import { ObjectId } from 'bson';
 
+export const availableOrderSorts = ['createdAt', 'updatedAt', 'orderTotal'];
+
 export const availableSellersSorts = [
   'createdAt',
   'updatedAt',

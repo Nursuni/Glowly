@@ -1,85 +1,203 @@
+import { Field, Float, InputType, Int } from '@nestjs/graphql';
 import {
-  IsString,
-  IsNotEmpty,
-  IsNumber,
-  IsPositive,
-  IsArray,
-  ValidateNested,
   ArrayMinSize,
-  ArrayMaxSize,
+  IsArray,
+  IsEnum,
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
+  Length,
   Min,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import type { ObjectId } from 'mongoose';
+import {
+  DeliveryMethod,
+  OrderStatus,
+  PaymentMethod,
+} from '../../enums/order.enum';
+import { Direction } from '../../enums/common.enum';
+import { availableOrderSorts } from '../../config';
 
-// Define the nested DTO for individual order items
-export class OrderItemDto {
-  // Product identifier must be a non-empty string
-  @IsString()
-  @IsNotEmpty({ message: 'Product ID is required for each item' })
-  productId: string;
-
-  // Quantity must be a positive integer of at least 1
-  @IsNumber()
-  @IsPositive({ message: 'Quantity must be positive' })
-  @Min(1, { message: 'Minimum quantity is 1' })
-  quantity: number;
-
-  // Unit price must be a positive number
-  @IsNumber(
-    { maxDecimalPlaces: 2 },
-    { message: 'Price must have at most 2 decimal places' },
-  )
-  @IsPositive({ message: 'Price must be positive' })
-  unitPrice: number;
-}
-
-// Define the nested DTO for shipping address
-export class AddressDto {
-  @IsString()
+// ─────────────────────────────────────────────
+//  ORDER ITEM INPUT
+// ─────────────────────────────────────────────
+@InputType()
+export class OrderItemInput {
   @IsNotEmpty()
-  street: string;
+  @Field(() => String)
+  productId: ObjectId;
 
-  @IsString()
   @IsNotEmpty()
-  city: string;
+  @Min(1)
+  @Field(() => Int)
+  itemQty: number;
 
-  @IsString()
-  @IsNotEmpty()
-  state: string;
-
-  @IsString()
-  @IsNotEmpty()
-  postalCode: string;
-
-  @IsString()
-  @IsNotEmpty()
-  country: string;
-}
-
-// Main order DTO with nested validation
-export class CreateOrderDto {
-  // Customer ID for the order
-  @IsString()
-  @IsNotEmpty({ message: 'Customer ID is required' })
-  customerId: string;
-
-  // Array of order items with validation on each element
-  // Type decorator tells class-transformer how to instantiate nested objects
-  @IsArray()
-  @ValidateNested({ each: true })
-  @ArrayMinSize(1, { message: 'Order must contain at least one item' })
-  @ArrayMaxSize(50, { message: 'Order cannot exceed 50 items' })
-  @Type(() => OrderItemDto)
-  items: OrderItemDto[];
-
-  // Nested shipping address object
-  @ValidateNested()
-  @Type(() => AddressDto)
-  shippingAddress: AddressDto;
-
-  // Optional billing address - if not provided, uses shipping address
   @IsOptional()
-  @ValidateNested()
-  @Type(() => AddressDto)
-  billingAddress?: AddressDto;
+  @Field(() => String, { nullable: true })
+  itemShade?: string;
+}
+
+// ─────────────────────────────────────────────
+//  CREATE ORDER
+// ─────────────────────────────────────────────
+@InputType()
+export class OrderInput {
+  @IsNotEmpty()
+  @IsEnum(PaymentMethod)
+  @Field(() => PaymentMethod)
+  paymentMethod: PaymentMethod;
+
+  @IsNotEmpty()
+  @IsEnum(DeliveryMethod)
+  @Field(() => DeliveryMethod)
+  deliveryMethod: DeliveryMethod;
+
+  // delivery info
+  @IsNotEmpty()
+  @Length(2, 80)
+  @Field(() => String)
+  recipientName: string;
+
+  @IsNotEmpty()
+  @IsPhoneNumber()
+  @Field(() => String)
+  recipientPhone: string;
+
+  @IsNotEmpty()
+  @Length(5, 200)
+  @Field(() => String)
+  deliveryAddress: string;
+
+  @IsNotEmpty()
+  @Length(2, 80)
+  @Field(() => String)
+  deliveryCity: string;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  deliveryZip?: string;
+
+  // items — at least 1
+  @IsNotEmpty()
+  @IsArray()
+  @ArrayMinSize(1)
+  @Field(() => [OrderItemInput])
+  orderItems: OrderItemInput[];
+
+  // optional coupon
+  @IsOptional()
+  @Length(3, 30)
+  @Field(() => String, { nullable: true })
+  couponCode?: string;
+
+  @IsOptional()
+  @Length(0, 300)
+  @Field(() => String, { nullable: true })
+  orderNote?: string;
+
+  // injected server-side — NOT exposed in schema
+  memberId?: ObjectId;
+}
+
+// ─────────────────────────────────────────────
+//  UPDATE ORDER  (customer: cancel only)
+//  (admin: full status control via separate input)
+// ─────────────────────────────────────────────
+@InputType()
+export class OrderUpdate {
+  @IsNotEmpty()
+  @Field(() => String)
+  _id: ObjectId; // ✅ required, no ?
+
+  @IsOptional()
+  @IsEnum(OrderStatus)
+  @Field(() => OrderStatus, { nullable: true })
+  orderStatus?: OrderStatus;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  orderNote?: string;
+}
+
+// ─────────────────────────────────────────────
+//  MY ORDERS INQUIRY  (customer)
+// ─────────────────────────────────────────────
+@InputType()
+class OISearch {
+  @IsOptional()
+  @IsEnum(OrderStatus)
+  @Field(() => OrderStatus, { nullable: true })
+  orderStatus?: OrderStatus;
+}
+
+@InputType()
+export class OrdersInquiry {
+  @IsNotEmpty()
+  @Min(1)
+  @Field(() => Int)
+  page: number;
+
+  @IsNotEmpty()
+  @Min(1)
+  @Field(() => Int)
+  limit: number;
+
+  @IsOptional()
+  @IsIn(availableOrderSorts)
+  @Field(() => String, { nullable: true })
+  sort?: string;
+
+  @IsOptional()
+  @Field(() => Direction, { nullable: true })
+  direction?: Direction;
+
+  @IsNotEmpty()
+  @Field(() => OISearch)
+  search: OISearch;
+}
+
+// ─────────────────────────────────────────────
+//  ALL ORDERS INQUIRY  (admin)
+// ─────────────────────────────────────────────
+@InputType()
+class AOISearch {
+  @IsOptional()
+  @IsEnum(OrderStatus)
+  @Field(() => OrderStatus, { nullable: true })
+  orderStatus?: OrderStatus;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  memberId?: ObjectId;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  text?: string;
+}
+
+@InputType()
+export class AllOrdersInquiry {
+  @IsNotEmpty()
+  @Min(1)
+  @Field(() => Int)
+  page: number;
+
+  @IsNotEmpty()
+  @Min(1)
+  @Field(() => Int)
+  limit: number;
+
+  @IsOptional()
+  @IsIn(availableOrderSorts)
+  @Field(() => String, { nullable: true })
+  sort?: string;
+
+  @IsOptional()
+  @Field(() => Direction, { nullable: true })
+  direction?: Direction;
+
+  @IsNotEmpty()
+  @Field(() => AOISearch)
+  search: AOISearch;
 }
