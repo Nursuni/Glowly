@@ -56,9 +56,6 @@ export class Product {
   ingredientType?: IngredientType[];
 
   @Field(() => Int)
-  stock: number;
-
-  @Field(() => Int)
   productViews: number;
 
   @Field(() => Int)

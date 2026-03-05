@@ -34,6 +34,10 @@ export class ProductInput {
   @Length(3, 100)
   @Field(() => String)
   productTitle: string;
+  @IsOptional()
+  @IsArray()
+  @Field(() => [VariantInput], { nullable: true })
+  variants?: VariantInput[];
 
   memberId?: ObjectId;
   @IsNotEmpty()
@@ -82,11 +86,6 @@ export class ProductInput {
   @IsEnum(IngredientType, { each: true })
   @Field(() => [IngredientType], { nullable: true })
   ingredientType?: IngredientType[];
-
-  @IsOptional()
-  @Min(0)
-  @Field(() => Int, { nullable: true })
-  stock?: number;
 
   @IsNotEmpty()
   @IsArray()
@@ -257,4 +256,34 @@ export class AllProductsInquiry {
   @IsNotEmpty()
   @Field(() => ALPISearch)
   search: ALPISearch;
+}
+
+@InputType()
+export class VariantInput {
+  @IsNotEmpty()
+  @Field(() => String)
+  name: string; // "Coco Nude"
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  hexCode?: string;
+
+  @IsOptional()
+  @IsArray()
+  @Field(() => [String], { nullable: true })
+  images?: string[];
+
+  @IsOptional()
+  @Min(0)
+  @Field(() => Int, { nullable: true })
+  stock?: number;
+
+  @IsOptional()
+  @Min(0)
+  @Field(() => Float, { nullable: true })
+  price?: number;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  sku?: string;
 }

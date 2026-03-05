@@ -21,6 +21,7 @@ import {
   IngredientType,
   AgeRange,
 } from '../../enums/product.enum';
+import { VariantInput } from './product.input';
 
 @InputType()
 export class ProductUpdate {
@@ -28,6 +29,10 @@ export class ProductUpdate {
   @Field(() => String)
   _id: ObjectId;
 
+  @IsOptional()
+  @IsArray()
+  @Field(() => [VariantInput], { nullable: true })
+  variants?: VariantInput[];
   @IsOptional()
   @IsEnum(ProductType)
   @Field(() => ProductType, { nullable: true })
@@ -90,12 +95,6 @@ export class ProductUpdate {
   @IsEnum(IngredientType, { each: true })
   @Field(() => [IngredientType], { nullable: true })
   ingredientType?: IngredientType[];
-
-  @IsOptional()
-  @IsInt()
-  @Min(0)
-  @Field(() => Int, { nullable: true })
-  stock?: number;
 
   @IsOptional()
   @IsArray()

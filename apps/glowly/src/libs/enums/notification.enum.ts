@@ -9,7 +9,6 @@ export enum NotificationType {
   REVIEW = 'REVIEW', // someone reviewed your product
   SYSTEM = 'SYSTEM', // admin broadcast
   COUPON = 'COUPON', // new coupon issued
-  RESTOCK = 'RESTOCK', // wishlist item back in stock
 }
 
 registerEnumType(NotificationType, {

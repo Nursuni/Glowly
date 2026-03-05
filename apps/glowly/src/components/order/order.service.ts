@@ -65,11 +65,7 @@ export class OrderService {
     // 2. build items with real prices from DB (never trust client price)
     const orderItems = input.orderItems.map((item) => {
       const product = productMap.get(String(item.productId));
-      if (product.stock < item.itemQty) {
-        throw new BadRequestException(
-          `Insufficient stock for product: ${product.productTitle}`,
-        );
-      }
+
       const unitPrice =
         product.discountValue && product.discountType
           ? product.productPrice - product.discountValue
