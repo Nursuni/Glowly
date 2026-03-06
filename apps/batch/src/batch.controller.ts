@@ -5,7 +5,7 @@ import { Cron, Interval, Timeout } from '@nestjs/schedule';
 import {
   BATCH_ROLLBACK,
   BATCH_TOP_PRODUCTS,
-  BATCH_TOP_SELLERS,
+  BATCH_TOP_BRANDS,
 } from './lib/config';
 
 @Controller()
@@ -40,12 +40,12 @@ export class BatchController {
     }
   }
 
-  @Cron('40 00 * * * *', { name: BATCH_TOP_SELLERS })
-  public async batchSellers() {
+  @Cron('40 00 * * * *', { name: BATCH_TOP_BRANDS })
+  public async batchBrands() {
     try {
-      this.logger['context'] = BATCH_TOP_SELLERS;
+      this.logger['context'] = BATCH_TOP_BRANDS;
       this.logger.debug('EXECUTED!');
-      await this.batchService.batchTopSellers();
+      await this.batchService.batchTopBrands();
     } catch (err) {
       this.logger.error(err);
     }

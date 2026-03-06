@@ -13,7 +13,7 @@ export class QuizResolver {
   constructor(private readonly quizService: QuizService) {}
 
   @Query(() => QuestionsResponseGql, { name: 'quizQuestions' })
-  getQuestions() {
+  getQuestions(): QuestionsResponseGql {
     return {
       totalSteps: QUESTIONS.length,
       questions: QUESTIONS as unknown as QuizQuestionGql[],

@@ -39,7 +39,7 @@ export class MemberResolver {
     console.log('membernick:', memberNick);
     return `Hi ${memberNick}`;
   }
-  @Roles(MemberType.USER, MemberType.SELLER)
+  @Roles(MemberType.USER, MemberType.BRAND)
   @UseGuards(RolesGuard)
   @Query(() => String)
   public async checkAuthRoles(
@@ -94,11 +94,11 @@ export class MemberResolver {
 
   @UseGuards(WithoutGuard)
   @Query(() => Members)
-  public async getSellers(
-    @Args('input') input: SellersInquiry,
+  public async getBrands(
+    @Args('input') input: BrandsInquiry,
     @AuthMember('_id') memberId: mongoose.ObjectId,
   ): Promise<Members> {
-    return await this.memberService.getSellers(memberId, input);
+    return await this.memberService.getBrands(memberId, input);
   }
 
   /** AUTHORIZATION: ADMIN */

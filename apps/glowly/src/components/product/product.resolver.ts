@@ -22,7 +22,7 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 export class ProductResolver {
   constructor(private readonly productService: ProductService) {}
 
-  @Roles(MemberType.SELLER)
+  @Roles(MemberType.BRAND)
   @UseGuards(RolesGuard)
   @Mutation(() => Product)
   public async createProduct(
@@ -47,7 +47,7 @@ export class ProductResolver {
     return await this.productService.getProduct(memberId, productId);
   }
 
-  @Roles(MemberType.SELLER)
+  @Roles(MemberType.BRAND)
   @UseGuards(RolesGuard)
   @Mutation((returns) => Product)
   public async updateProduct(
@@ -69,15 +69,15 @@ export class ProductResolver {
     return await this.productService.getProducts(memberId, input);
   }
 
-  @Roles(MemberType.SELLER)
+  @Roles(MemberType.BRAND)
   @UseGuards(RolesGuard)
   @Query((returns) => Products)
-  public async getSellerProducts(
-    @Args('input') input: SellerProductsInquiry,
+  public async getBrandProducts(
+    @Args('input') input: BrandProductsInquiry,
     @AuthMember('_id') memberId: mongoose.ObjectId,
   ): Promise<Products> {
-    console.log('Query: getbatchSellersProducts');
-    return await this.productService.getSellerProducts(memberId, input);
+    console.log('Query: getbatchBrandsProducts');
+    return await this.productService.getBrandProducts(memberId, input);
   }
 
   /**ADMIN */

@@ -34,6 +34,7 @@ export class ProductInput {
   @Length(3, 100)
   @Field(() => String)
   productTitle: string;
+
   @IsOptional()
   @IsArray()
   @Field(() => [VariantInput], { nullable: true })
@@ -196,7 +197,7 @@ class SPISearch {
 }
 
 @InputType()
-export class SellerProductsInquiry {
+export class BrandProductsInquiry {
   @IsNotEmpty()
   @Min(1)
   @Field(() => Int)

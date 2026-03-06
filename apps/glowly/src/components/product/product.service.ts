@@ -12,7 +12,7 @@ import {
   AllProductsInquiry,
   ProductInput,
   ProductsInquiry,
-  SellerProductsInquiry,
+  BrandProductsInquiry,
 } from '../../libs/dto/product/product.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { MemberService } from '../member/member.service';
@@ -215,9 +215,9 @@ export class ProductService {
   }
   //TODO: text
   //if (text) match.productTitle = { $regex: new RegExp(text, 'i') };
-  public async getSellerProducts(
+  public async getBrandProducts(
     memberId: ObjectId,
-    input: SellerProductsInquiry,
+    input: BrandProductsInquiry,
   ): Promise<Products> {
     const { productStatus } = input.search;
     if (productStatus === ProductStatus.DELETED)

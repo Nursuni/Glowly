@@ -111,7 +111,7 @@ export class SISearch {
   text?: string;
 }
 @InputType()
-export class SellersInquiry {
+export class BrandsInquiry {
   @IsNotEmpty()
   @Min(1)
   @Field(() => Int)
@@ -123,7 +123,7 @@ export class SellersInquiry {
   limit: number;
 
   @IsOptional()
-  @IsIn(availableSellerSorts)
+  @IsIn(availableBrandsSorts)
   @Field(() => String, { nullable: true })
   sort?: string;
 

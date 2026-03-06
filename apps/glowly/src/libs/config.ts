@@ -7,7 +7,7 @@ import { ObjectId } from 'bson';
 
 export const availableOrderSorts = ['createdAt', 'updatedAt', 'orderTotal'];
 
-export const availableSellersSorts = [
+export const availableBrandsSorts = [
   'createdAt',
   'updatedAt',
   'memberLikes',

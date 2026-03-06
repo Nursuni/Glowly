@@ -28,7 +28,7 @@ export class BatchService {
       .updateMany(
         {
           memberStatus: MemberStatus.ACTIVE,
-          memberType: MemberType.SELLER,
+          memberType: MemberType.BRAND,
         },
         { memberRank: 0 },
       )
@@ -54,16 +54,16 @@ export class BatchService {
     await Promise.all(promisedList);
   }
 
-  public async batchTopSellers(): Promise<void> {
-    const sellers: Member[] = await this.memberModel
+  public async batchTopBrands(): Promise<void> {
+    const brands: Member[] = await this.memberModel
       .find({
-        memberType: MemberType.SELLER,
+        memberType: MemberType.BRAND,
         memberStatus: MemberStatus.ACTIVE,
         memberRank: 0,
       })
       .exec();
 
-    const promisedList = sellers.map(async (ele: Member) => {
+    const promisedList = brands.map(async (ele: Member) => {
       const { _id, memberProducts, memberLikes, memberArticles, memberViews } =
         ele;
       const rank =
@@ -79,7 +79,7 @@ export class BatchService {
     await Promise.all(promisedList);
   }
 
-  public async batchSellers(): Promise<void> {
-    console.log('batchSellers');
+  public async batchBrands(): Promise<void> {
+    console.log('batchBrands');
   }
 }

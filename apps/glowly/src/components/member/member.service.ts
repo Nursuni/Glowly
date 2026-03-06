@@ -14,7 +14,7 @@ import {
   LoginInput,
   MemberInput,
   MembersInquiry,
-  SellersInquiry,
+  BrandsInquiry,
 } from '../../libs/dto/member/member.input';
 import { MemberStatus, MemberType } from '../../libs/enums/member.enum';
 import { Direction, Message } from '../../libs/enums/common.enum';
@@ -158,13 +158,13 @@ export class MemberService {
     return result[0];
   }
 
-  public async getSellers(
+  public async getBrands(
     memberId: ObjectId,
-    input: SellersInquiry,
+    input: BrandsInquiry,
   ): Promise<Members> {
     const text = input.search?.text;
     const match: T = {
-      memberType: MemberType.SELLER,
+      memberType: MemberType.BRAND,
       memberStatus: MemberStatus.ACTIVE,
     };
     const sort: T = {

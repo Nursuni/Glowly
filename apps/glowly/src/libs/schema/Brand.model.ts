@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose';
 
-const SellerSchema = new Schema(
+const BrandSchema = new Schema(
   {
     memberId: {
       type: Schema.Types.ObjectId,
