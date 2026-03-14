@@ -1,16 +1,16 @@
 import { registerEnumType } from '@nestjs/graphql';
 
-// ✅ Add Seller Application Status
-export enum SellerApplicationStatus {
+// ✅ Add Brand Application Status
+export enum BrandApplicationStatus {
   PENDING = 'PENDING', // Submitted, waiting for review
   APPROVED = 'APPROVED', // Approved by admin
   REJECTED = 'REJECTED', // Rejected by admin
   REVISION_NEEDED = 'REVISION_NEEDED', // Needs more info
 }
 
-registerEnumType(SellerApplicationStatus, {
-  name: 'SellerApplicationStatus',
-  description: 'Status of seller application',
+registerEnumType(BrandApplicationStatus, {
+  name: 'BrandApplicationStatus',
+  description: 'Status of Brand application',
 });
 
 export enum MembershipTier {

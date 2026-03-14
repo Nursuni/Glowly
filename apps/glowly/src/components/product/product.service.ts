@@ -13,6 +13,7 @@ import {
   ProductInput,
   ProductsInquiry,
   BrandProductsInquiry,
+  OrdinaryInquiry,
 } from '../../libs/dto/product/product.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { MemberService } from '../member/member.service';
@@ -329,6 +330,13 @@ export class ProductService {
     return result;
   }
 
+  public async getFavorites(
+    memberId: ObjectId,
+    input: OrdinaryInquiry,
+  ): Promise<Products> {
+    return await this.likeService.getFavoriteProducts(memberId, input);
+  }
+
   public async likeTargetProduct(
     memberId: ObjectId,
     likeRefId: ObjectId,
@@ -355,5 +363,12 @@ export class ProductService {
       throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
     return result;
     // LIKE TOGGLE
+  }
+
+  public async getVisited(
+    memberId: ObjectId,
+    input: OrdinaryInquiry,
+  ): Promise<Products> {
+    return await this.viewService.getVisitedProducts(memberId, input);
   }
 }

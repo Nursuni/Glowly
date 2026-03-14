@@ -45,7 +45,7 @@ registerEnumType(NoticePriority, {
 export enum NoticeTarget {
   ALL = 'ALL',
   MEMBERS = 'MEMBERS',
-  SELLERS = 'SELLERS',
+  BRANDS = 'BRANDS',
   SPECIFIC_TIER = 'SPECIFIC_TIER',
   NEW_MEMBERS = 'NEW_MEMBERS',
 }

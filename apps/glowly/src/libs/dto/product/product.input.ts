@@ -175,6 +175,10 @@ export class ProductsInquiry {
 
   @Field(() => ProductSearch)
   search: ProductSearch;
+
+  @IsOptional()
+  @Field(() => String, { nullable: true })
+  skinTypeList?: SkinType[];
 }
 
 @InputType()

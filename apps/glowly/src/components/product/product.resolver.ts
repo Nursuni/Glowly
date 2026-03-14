@@ -9,7 +9,8 @@ import {
   AllProductsInquiry,
   ProductInput,
   ProductsInquiry,
-  SellerProductsInquiry,
+  BrandProductsInquiry,
+  OrdinaryInquiry,
 } from '../../libs/dto/product/product.input';
 import * as mongoose from 'mongoose';
 import { AuthMember } from '../auth/decorators/authMember.decorator';
@@ -36,6 +37,15 @@ export class ProductResolver {
     return await this.productService.createProduct(input);
   }
 
+  @UseGuards(AuthGuard)
+  @Query((returns) => Products)
+  public async getVisited(
+    @Args('input') input: OrdinaryInquiry,
+    @AuthMember('_id') memberId: mongoose.ObjectId,
+  ): Promise<Products> {
+    console.log('Query: getVisited');
+    return await this.productService.getVisited(memberId, input);
+  }
   @UseGuards(WithoutGuard)
   @Query((returns) => Product)
   public async getProduct(
@@ -57,6 +67,16 @@ export class ProductResolver {
     console.log('Mutation: updateProduct');
     input._id = shapeIntoMongoObjectId(input._id);
     return await this.productService.updateProduct(memberId, input);
+  }
+
+  @UseGuards(AuthGuard)
+  @Query((returns) => Products)
+  public async getFavorites(
+    @Args('input') input: OrdinaryInquiry,
+    @AuthMember('_id') memberId: mongoose.ObjectId,
+  ): Promise<Products> {
+    console.log('Query: getFavorites');
+    return await this.productService.getFavorites(memberId, input);
   }
 
   @UseGuards(WithoutGuard)

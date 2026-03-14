@@ -62,6 +62,15 @@ export class OrderResolver {
     return this.orderService.getOrders(memberId, input);
   }
 
+  @Query(() => [Order])
+  @UseGuards(AuthGuard)
+  async getMyOrders(
+    @Args('input') input: OrdersInquiry,
+    @AuthMember('_id') memberId: mongoose.ObjectId,
+  ): Promise<Order[]> {
+    const result = await this.orderService.getOrders(memberId, input);
+    return result?.list ?? [];
+  }
   // ─────────────────────────────────────────────
   //  updateOrder  — customer cancel / note update
   // ─────────────────────────────────────────────

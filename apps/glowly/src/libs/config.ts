@@ -37,7 +37,7 @@ export const availableProductSorts = [
   'productPrice',
 ];
 
-export const availableSellerSorts = [
+export const availableBrandSorts = [
   'createdAt',
   'updatedAt',
   'memberLikes',

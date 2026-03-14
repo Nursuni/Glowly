@@ -5,7 +5,7 @@ import {
   LoginInput,
   MemberInput,
   MembersInquiry,
-  SellersInquiry,
+  BrandsInquiry,
 } from '../../libs/dto/member/member.input';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { UseGuards } from '@nestjs/common';

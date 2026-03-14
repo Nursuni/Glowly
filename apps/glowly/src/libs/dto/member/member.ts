@@ -8,7 +8,7 @@ import {
 } from '../../enums/member.enum';
 import { MeLiked } from '../like/like';
 import { MeFollowed } from '../follow/follow';
-import { MembershipTier } from '../../enums/seller.enum';
+import { MembershipTier } from '../../enums/brand.enum';
 
 @ObjectType()
 export class Member {

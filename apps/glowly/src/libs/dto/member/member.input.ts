@@ -15,9 +15,9 @@ import {
   MemberType,
 } from '../../enums/member.enum';
 import {
-  availableSellersSorts,
+  availableBrandsSorts,
   availableMemberSorts,
-  availableSellerSorts,
+  availableBrandSorts,
 } from '../../config';
 import { Direction } from '../../enums/common.enum';
 
@@ -123,7 +123,7 @@ export class BrandsInquiry {
   limit: number;
 
   @IsOptional()
-  @IsIn(availableBrandsSorts)
+  @IsIn(availableBrandSorts)
   @Field(() => String, { nullable: true })
   sort?: string;
 

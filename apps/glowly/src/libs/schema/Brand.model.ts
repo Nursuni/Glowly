@@ -43,11 +43,7 @@ const BrandSchema = new Schema(
       type: String,
       required: true,
     },
-    // status: {
-    //   type: String,
-    //   enum: SellerApplicationStatus,
-    //   default: SellerApplicationStatus.PENDING,
-    // },
+
     rejectionReason: {
       type: String,
     },
@@ -59,7 +55,7 @@ const BrandSchema = new Schema(
       type: Date,
     },
   },
-  { timestamps: true, collection: 'sellers' },
+  { timestamps: true, collection: 'brands' },
 );
 
-export default SellerSchema;
+export default BrandSchema;
