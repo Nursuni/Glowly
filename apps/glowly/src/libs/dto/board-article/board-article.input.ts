@@ -37,16 +37,6 @@ export class BoardArticleInput {
 }
 
 @InputType()
-export class ReportBoardArticleInput {
-  @IsNotEmpty()
-  @Field(() => String)
-  articleId: string;
-
-  @IsNotEmpty()
-  @Field(() => BoardArticleReportReason)
-  reason: BoardArticleReportReason;
-}
-@InputType()
 class BAISearch {
   @IsOptional()
   @Field(() => BoardArticleCategory, { nullable: true })
@@ -79,7 +69,7 @@ export class BoardArticlesInquiry {
   sort?: string;
 
   @IsOptional()
-  @Field(() => Direction, { nullable: true })
+  @Field(() => Int, { nullable: true })
   direction?: Direction;
 
   @IsNotEmpty()
@@ -116,23 +106,10 @@ export class AllBoardArticlesInquiry {
   sort?: string;
 
   @IsOptional()
-  @Field(() => Direction, { nullable: true })
+  @Field(() => Int, { nullable: true })
   direction?: Direction;
 
   @IsNotEmpty()
   @Field(() => ABAISearch)
   search: ABAISearch;
-}
-
-@InputType()
-export class BoardArticlesByTagInput {
-  @IsNotEmpty()
-  @Field(() => String)
-  tag: string;
-
-  @Field(() => Int, { defaultValue: 1 })
-  page: number;
-
-  @Field(() => Int, { defaultValue: 10 })
-  limit: number;
 }

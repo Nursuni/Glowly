@@ -26,4 +26,9 @@ export class BoardArticleUpdate {
   @IsOptional()
   @Field(() => String, { nullable: true })
   articleImage?: string;
+
+  // Add to BoardArticleUpdate
+  @IsOptional()
+  @Field(() => [String], { nullable: true })
+  articleTags?: string[];
 }

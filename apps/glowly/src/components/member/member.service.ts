@@ -130,7 +130,9 @@ export class MemberService {
     const { text, memberStatus, memberType } = input.search ?? {};
     const match: T = {};
     const sort: T = {
-      [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
+      [input?.sort ?? 'createdAt']: (input?.direction ?? Direction.DESC) as
+        | 1
+        | -1,
     };
 
     if (memberStatus) match.memberStatus = memberStatus;
@@ -168,7 +170,9 @@ export class MemberService {
       memberStatus: MemberStatus.ACTIVE,
     };
     const sort: T = {
-      [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
+      [input?.sort ?? 'createdAt']: (input?.direction ?? Direction.DESC) as
+        | 1
+        | -1,
     };
     if (text) {
       match.memberNick = { $regex: text, $options: 'i' };

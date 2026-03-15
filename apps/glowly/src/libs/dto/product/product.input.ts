@@ -57,7 +57,7 @@ export class ProductInput {
   discountValue?: number;
 
   @IsOptional()
-  @Field(() => Int, { nullable: true })
+  @Field(() => Float, { nullable: true })
   volume?: number;
 
   @IsOptional()
@@ -177,7 +177,7 @@ export class ProductsInquiry {
   search: ProductSearch;
 
   @IsOptional()
-  @Field(() => String, { nullable: true })
+  @Field(() => [SkinType], { nullable: true })
   skinTypeList?: SkinType[];
 }
 
@@ -218,7 +218,7 @@ export class BrandProductsInquiry {
   sort?: string;
 
   @IsOptional()
-  @Field(() => Direction, { nullable: true })
+  @Field(() => Int, { nullable: true })
   direction?: Direction;
 
   @IsNotEmpty()
@@ -255,7 +255,7 @@ export class AllProductsInquiry {
   sort?: string;
 
   @IsOptional()
-  @Field(() => Direction, { nullable: true })
+  @Field(() => Int, { nullable: true })
   direction?: Direction;
 
   @IsNotEmpty()

@@ -16,9 +16,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import {
   AllBoardArticlesInquiry,
   BoardArticleInput,
-  BoardArticlesByTagInput,
   BoardArticlesInquiry,
-  ReportBoardArticleInput,
 } from '../../libs/dto/board-article/board-article.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
@@ -143,7 +141,7 @@ export class BoardArticleService {
           memberId: memberId,
           articleStatus: BoardArticleStatus.ACTIVE,
         },
-        input,
+        { $set: input },
         {
           new: true,
         },
@@ -170,7 +168,9 @@ export class BoardArticleService {
     const { articleCategory, text } = input.search;
     const match: T = { articleStatus: BoardArticleStatus.ACTIVE };
     const sort: T = {
-      [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
+      [input?.sort ?? 'createdAt']: (input?.direction ?? Direction.DESC) as
+        | 1
+        | -1,
     };
 
     if (articleCategory) match.articleCategory = articleCategory;
@@ -212,7 +212,9 @@ export class BoardArticleService {
     const { articleStatus, articleCategory } = input.search;
     const match: T = {};
     const sort: T = {
-      [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
+      [input?.sort ?? 'createdAt']: (input?.direction ?? Direction.DESC) as
+        | 1
+        | -1,
     };
 
     if (articleStatus) match.articleStatus = articleStatus;

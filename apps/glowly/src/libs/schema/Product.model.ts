@@ -10,21 +10,6 @@ import {
   AgeRange,
 } from '../enums/product.enum';
 
-/* ================= VARIANT SCHEMA  ================= */
-
-const VariantSchema = new Schema(
-  {
-    name: { type: String, required: true },
-    hexCode: { type: String },
-    images: [{ type: String }],
-
-    price: { type: Number },
-    sku: { type: String },
-    isActive: { type: Boolean, default: true },
-  },
-  { _id: false },
-);
-
 /* ================= PRODUCT SCHEMA ================= */
 
 const ProductSchema = new Schema(
@@ -90,10 +75,7 @@ const ProductSchema = new Schema(
       enum: Object.values(AgeRange),
       default: [],
     },
-    variants: {
-      type: [VariantSchema],
-      default: [],
-    },
+
     productViews: {
       type: Number,
       default: 0,
@@ -123,7 +105,9 @@ const ProductSchema = new Schema(
       required: true,
       ref: 'Member',
     },
-
+    soldAt: { type: Date },
+    manufacturedAt: { type: Date },
+    expiresAt: { type: Date },
     deletedAt: {
       type: Date,
     },

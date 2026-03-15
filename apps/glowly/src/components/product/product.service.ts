@@ -156,7 +156,9 @@ export class ProductService {
   ): Promise<Products> {
     const match: T = { productStatus: ProductStatus.ACTIVE };
     const sort: T = {
-      [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
+      [input?.sort ?? 'createdAt']: (input?.direction ?? Direction.DESC) as
+        | 1
+        | -1,
     };
 
     this.shapeMatchQuery(match, input); //
@@ -229,7 +231,9 @@ export class ProductService {
       productStatus: productStatus ?? { $ne: ProductStatus.DELETED },
     };
     const sort: T = {
-      [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
+      [input?.sort ?? 'createdAt']: (input?.direction ?? Direction.DESC) as
+        | 1
+        | -1,
     };
 
     const result = await this.productModel
@@ -262,7 +266,9 @@ export class ProductService {
     const { productStatus, productTypeList } = input.search;
     const match: T = {};
     const sort: T = {
-      [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
+      [input?.sort ?? 'createdAt']: (input?.direction ?? Direction.DESC) as
+        | 1
+        | -1,
     };
 
     if (productStatus) match.productStatus = productStatus;

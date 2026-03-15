@@ -149,7 +149,7 @@ export class OrdersInquiry {
   sort?: string;
 
   @IsOptional()
-  @Field(() => Direction, { nullable: true })
+  @Field(() => Int, { nullable: true })
   direction?: Direction;
 
   @IsNotEmpty()
@@ -194,7 +194,7 @@ export class AllOrdersInquiry {
   sort?: string;
 
   @IsOptional()
-  @Field(() => Direction, { nullable: true })
+  @Field(() => Int, { nullable: true })
   direction?: Direction;
 
   @IsNotEmpty()

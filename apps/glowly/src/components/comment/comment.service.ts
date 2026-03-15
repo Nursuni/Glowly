@@ -105,7 +105,9 @@ export class CommentService {
       commentStatus: CommentStatus.ACTIVE,
     };
     const sort: T = {
-      [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC,
+      [input?.sort ?? 'createdAt']: (input?.direction ?? Direction.DESC) as
+        | 1
+        | -1,
     };
 
     const result: Comments[] = await this.commentModel

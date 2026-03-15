@@ -10,7 +10,7 @@ const BoardArticleSchema = new Schema(
   {
     articleCategory: {
       type: String,
-      enum: BoardArticleCategory,
+      enum: Object.values(BoardArticleCategory),
       required: true,
     },
 

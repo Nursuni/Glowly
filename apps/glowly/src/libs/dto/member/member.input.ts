@@ -34,7 +34,6 @@ export class MemberInput {
   memberPassword: string;
 
   @IsNotEmpty()
-  @IsPhoneNumber('KR')
   @Field(() => String)
   memberPhone: string;
 
@@ -96,7 +95,7 @@ export class MembersInquiry {
   sort?: string;
 
   @IsOptional()
-  @Field(() => Direction, { nullable: true })
+  @Field(() => Int, { nullable: true })
   direction?: Direction;
 
   @IsOptional()
@@ -128,7 +127,7 @@ export class BrandsInquiry {
   sort?: string;
 
   @IsOptional()
-  @Field(() => Direction, { nullable: true })
+  @Field(() => Int, { nullable: true })
   direction?: Direction;
 
   @IsOptional()

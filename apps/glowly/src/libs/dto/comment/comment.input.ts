@@ -49,7 +49,7 @@ export class CommentsInquiry {
   sort?: string;
 
   @IsOptional()
-  @Field(() => Direction, { nullable: true })
+  @Field(() => Int, { nullable: true })
   direction?: Direction;
 
   @IsNotEmpty()
