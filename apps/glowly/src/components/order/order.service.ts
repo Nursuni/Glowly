@@ -66,10 +66,7 @@ export class OrderService {
     const orderItems = input.orderItems.map((item) => {
       const product = productMap.get(String(item.productId));
 
-      const unitPrice =
-        product.discountValue && product.discountType
-          ? product.productPrice - product.discountValue
-          : product.productPrice;
+      const unitPrice = product.productPrice;
 
       return {
         productId: item.productId,
@@ -193,12 +190,54 @@ export class OrderService {
               { $sort: { [sortKey]: sortDir } },
               { $skip: (page - 1) * limit },
               { $limit: limit },
+
+              // ✅ STEP 1: Lookup all products referenced in orderItems
               {
                 $lookup: {
                   from: 'products',
                   localField: 'orderItems.productId',
                   foreignField: '_id',
                   as: 'productsData',
+                },
+              },
+
+              // ✅ STEP 2: Map each orderItem → merge its matching productData inside it
+              {
+                $addFields: {
+                  orderItems: {
+                    $map: {
+                      input: '$orderItems',
+                      as: 'item',
+                      in: {
+                        $mergeObjects: [
+                          '$$item',
+                          {
+                            productData: {
+                              $arrayElemAt: [
+                                {
+                                  $filter: {
+                                    input: '$productsData',
+                                    as: 'prod',
+                                    cond: {
+                                      $eq: ['$$prod._id', '$$item.productId'],
+                                    },
+                                  },
+                                },
+                                0,
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+
+              // ✅ STEP 3: Remove the raw productsData array (no longer needed)
+              {
+                $project: {
+                  productsData: 0,
                 },
               },
             ],

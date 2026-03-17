@@ -137,7 +137,11 @@ export class MemberService {
 
     if (memberStatus) match.memberStatus = memberStatus;
     if (memberType) match.memberType = memberType;
-    if (text) match.memberNick = { $regex: new RegExp(text, 'i') };
+    if (text)
+      match.$or = [
+        { memberNick: { $regex: text, $options: 'i' } },
+        { memberFullName: { $regex: text, $options: 'i' } },
+      ];
 
     const result = await this.memberModel
       .aggregate([
@@ -187,7 +191,7 @@ export class MemberService {
             list: [
               { $skip: (input.page - 1) * input.limit },
               { $limit: input.limit },
-              lookupAuthMemberLiked(memberId),
+              lookupAuthMemberLiked(memberId ?? null),
             ],
             metaCounter: [{ $count: 'total' }],
           },

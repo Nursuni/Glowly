@@ -63,14 +63,6 @@ export enum AgeRange {
 registerEnumType(AgeRange, {
   name: 'AgeRange',
 });
-export enum DiscountType {
-  PERCENTAGE = 'PERCENTAGE',
-  FIXED = 'FIXED',
-}
-
-registerEnumType(DiscountType, {
-  name: 'DiscountType',
-});
 
 export enum VolumeUnit {
   ML = 'ML', // Milliliters

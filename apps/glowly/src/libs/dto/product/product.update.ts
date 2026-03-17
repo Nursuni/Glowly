@@ -16,7 +16,6 @@ import {
   VolumeUnit,
   SkinType,
   ProductTarget,
-  DiscountType,
   IngredientType,
   AgeRange,
 } from '../../enums/product.enum';
@@ -51,16 +50,6 @@ export class ProductUpdate {
   @Min(0)
   @Field(() => Float, { nullable: true })
   productPrice?: number;
-
-  @IsOptional()
-  @IsEnum(DiscountType)
-  @Field(() => DiscountType, { nullable: true })
-  discountType?: DiscountType;
-
-  @IsOptional()
-  @Min(0)
-  @Field(() => Float, { nullable: true })
-  discountValue?: number;
 
   @IsOptional()
   @Min(0)

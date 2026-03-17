@@ -10,7 +10,6 @@ import {
   VolumeUnit,
   SkinType,
   ProductTarget,
-  DiscountType,
   IngredientType,
   AgeRange,
 } from '../../enums/product.enum';
@@ -35,11 +34,6 @@ export class Product {
   @Field(() => Float)
   productPrice: number;
 
-  @Field(() => DiscountType, { nullable: true })
-  discountType?: DiscountType;
-
-  @Field(() => Float, { nullable: true })
-  discountValue?: number;
   @Field(() => Float, { nullable: true })
   volume?: number;
 

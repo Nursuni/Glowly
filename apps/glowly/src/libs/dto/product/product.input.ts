@@ -14,7 +14,6 @@ import {
   ProductType,
   ProductTarget,
   SkinType,
-  DiscountType,
   VolumeUnit,
   IngredientType,
   AgeRange,
@@ -45,16 +44,6 @@ export class ProductInput {
   @Min(0)
   @Field(() => Float)
   productPrice: number;
-
-  @IsOptional()
-  @IsEnum(DiscountType)
-  @Field(() => DiscountType, { nullable: true })
-  discountType?: DiscountType;
-
-  @IsOptional()
-  @Min(0)
-  @Field(() => Float, { nullable: true })
-  discountValue?: number;
 
   @IsOptional()
   @Field(() => Float, { nullable: true })

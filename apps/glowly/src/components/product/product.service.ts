@@ -160,9 +160,9 @@ export class ProductService {
         | 1
         | -1,
     };
-
+    console.log('BEFORE SHAPE:', match);
     this.shapeMatchQuery(match, input); //
-    console.log('match:', match);
+    console.log('AFTER SHAPE:', match);
 
     const result = await this.productModel
       .aggregate([
@@ -173,7 +173,7 @@ export class ProductService {
             list: [
               { $skip: (input.page - 1) * input.limit },
               { $limit: input.limit },
-              lookupAuthMemberLiked(memberId),
+              ...(memberId ? [lookupAuthMemberLiked(memberId)] : []),
               lookupMember,
               { $unwind: '$memberData' },
             ],
@@ -189,35 +189,52 @@ export class ProductService {
     return result[0];
   }
 
-  private shapeMatchQuery(match: T, input: ProductsInquiry): void {
+  private shapeMatchQuery(match: any, input: ProductsInquiry): void {
     const {
-      memberId,
       text,
       skinType,
       productTypeList,
       productTarget,
       ageRange,
       pricesRange,
-    } = input.search;
-    if (skinType && skinType.length) {
-      match.skinType = { $in: skinType };
-    }
-    if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
+      memberId,
+    } = input.search ?? {};
 
-    if (productTypeList && productTypeList.length) {
+    if (memberId) {
+      match.memberId = shapeIntoMongoObjectId(memberId);
+    }
+
+    if (productTypeList?.length) {
       match.productType = { $in: productTypeList };
     }
+
+    if (skinType?.length) {
+      match.skinType = { $in: skinType };
+    }
+
     if (ageRange?.length) {
       match.ageRange = { $in: ageRange };
     }
+
     if (productTarget) {
       match.productTarget = productTarget;
     }
-    if (pricesRange)
-      match.productPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
+
+    if (text) {
+      match.$or = [
+        { productTitle: { $regex: text, $options: 'i' } },
+        { productDesc: { $regex: text, $options: 'i' } },
+      ];
+    }
+
+    if (pricesRange) {
+      match.productPrice = {
+        $gte: pricesRange.start,
+        $lte: pricesRange.end,
+      };
+    }
   }
-  //TODO: text
-  //if (text) match.productTitle = { $regex: new RegExp(text, 'i') };
+
   public async getBrandProducts(
     memberId: ObjectId,
     input: BrandProductsInquiry,
@@ -230,6 +247,8 @@ export class ProductService {
       memberId: memberId,
       productStatus: productStatus ?? { $ne: ProductStatus.DELETED },
     };
+
+    this.shapeMatchQuery(match, input as any);
     const sort: T = {
       [input?.sort ?? 'createdAt']: (input?.direction ?? Direction.DESC) as
         | 1
@@ -376,5 +395,21 @@ export class ProductService {
     input: OrdinaryInquiry,
   ): Promise<Products> {
     return await this.viewService.getVisitedProducts(memberId, input);
+  }
+
+  public async addToVisited(
+    memberId: ObjectId,
+    productId: string,
+  ): Promise<string> {
+    if (!memberId) return 'ignored';
+
+    // ✅ matches your ViewInput shape exactly
+    await this.viewService.recordView({
+      memberId: memberId,
+      viewRefId: shapeIntoMongoObjectId(productId),
+      viewGroup: ViewGroup.PRODUCT,
+    });
+
+    return 'visited';
   }
 }

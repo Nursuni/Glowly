@@ -23,7 +23,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Message } from '../../libs/enums/common.enum';
 import { GraphQLUpload, FileUpload } from 'graphql-upload';
-import { createWriteStream } from 'fs';
+import { createWriteStream, existsSync, mkdirSync } from 'fs';
 import { T } from '../../libs/types/common';
 
 @Resolver()
@@ -151,36 +151,33 @@ export class MemberResolver {
     console.log('Mutation: imagesUploader');
 
     const uploadedImages: string[] = [];
-    const promisedList = files.map(
-      async (
-        img: Promise<FileUpload>,
-        index: number,
-      ): Promise<Promise<void>> => {
-        try {
-          const { filename, mimetype, encoding, createReadStream } = await img;
+    const dir = `uploads/${target}`;
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 
-          const validMime = validMimeTypes.includes(mimetype);
-          if (!validMime) throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
-
-          const imageName = getSerialForImage(filename);
-          const url = `uploads/${target}/${imageName}`;
-          const stream = createReadStream();
-
-          const result = await new Promise((resolve, reject) => {
-            stream
-              .pipe(createWriteStream(url))
-              .on('finish', () => resolve(true))
-              .on('error', () => reject(false));
-          });
-          console.log('Mutation: here');
-          if (!result) throw new Error(Message.UPLOAD_FAILED);
-
-          uploadedImages[index] = url;
-        } catch (err) {
-          console.log('Error, file missing!');
+    const promisedList = files.map(async (img: Promise<FileUpload>) => {
+      try {
+        const { filename, mimetype, createReadStream } = await img;
+        if (!validMimeTypes.includes(mimetype.toLowerCase())) {
+          throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
         }
-      },
-    );
+
+        const imageName = getSerialForImage(filename);
+        const url = `${dir}/${imageName}`;
+        const stream = createReadStream();
+
+        await new Promise((resolve, reject) => {
+          stream
+            .pipe(createWriteStream(url))
+            .on('finish', resolve)
+            .on('error', reject);
+        });
+
+        uploadedImages.push(url);
+      } catch (err) {
+        console.error('Upload error:', err);
+        throw err;
+      }
+    });
 
     await Promise.all(promisedList);
     return uploadedImages;

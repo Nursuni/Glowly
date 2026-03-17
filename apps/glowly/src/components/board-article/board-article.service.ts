@@ -161,6 +161,36 @@ export class BoardArticleService {
     return result;
   }
 
+  public async removeBoardArticle(
+    memberId: ObjectId,
+    articleId: ObjectId,
+  ): Promise<BoardArticle> {
+    const result = await this.boardArticleModel
+      .findOneAndUpdate(
+        {
+          _id: articleId,
+          memberId: memberId,
+          articleStatus: BoardArticleStatus.ACTIVE,
+        },
+        {
+          $set: { articleStatus: BoardArticleStatus.DELETED },
+        },
+        { new: true },
+      )
+      .exec();
+
+    if (!result) {
+      throw new InternalServerErrorException(Message.REMOVE_FAILED);
+    }
+
+    await this.memberService.memberStatsEditor({
+      _id: memberId,
+      targetKey: 'memberArticles',
+      modifier: -1,
+    });
+
+    return result;
+  }
   public async getBoardArticles(
     memberId: ObjectId,
     input: BoardArticlesInquiry,

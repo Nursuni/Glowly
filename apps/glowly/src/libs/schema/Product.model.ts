@@ -5,7 +5,6 @@ import {
   VolumeUnit,
   SkinType,
   ProductTarget,
-  DiscountType,
   IngredientType,
   AgeRange,
 } from '../enums/product.enum';
@@ -35,15 +34,6 @@ const ProductSchema = new Schema(
     productPrice: {
       type: Number,
       required: true,
-    },
-
-    discountType: {
-      type: String,
-      enum: Object.values(DiscountType),
-    },
-
-    discountValue: {
-      type: Number,
     },
 
     volume: {

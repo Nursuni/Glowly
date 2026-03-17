@@ -46,10 +46,21 @@ export class ProductResolver {
     console.log('Query: getVisited');
     return await this.productService.getVisited(memberId, input);
   }
+
+  @Mutation(() => String)
+  @UseGuards(WithoutGuard)
+  public async addToVisited(
+    @Args('input') input: string,
+    @AuthMember('_id') memberId: mongoose.ObjectId,
+  ): Promise<string> {
+    console.log('Mutation: addToVisited');
+    return await this.productService.addToVisited(memberId, input);
+  }
+
   @UseGuards(WithoutGuard)
   @Query((returns) => Product)
   public async getProduct(
-    @Args('ProductId') input: string,
+    @Args('productId') input: string,
     @AuthMember('_id') memberId: mongoose.ObjectId,
   ): Promise<Product> {
     console.log('Query: getProduct');
