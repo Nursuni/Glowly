@@ -31,6 +31,7 @@ export class BoardArticleResolver {
     @AuthMember('_id') memberId: mongoose.ObjectId,
   ): Promise<BoardArticle> {
     console.log('Mutation: createBoardArticle');
+    console.log('Mutation: createBoardArticle,', input);
     return await this.boardArticleService.createBoardArticle(memberId, input);
   }
 

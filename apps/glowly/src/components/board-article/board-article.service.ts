@@ -110,6 +110,7 @@ export class BoardArticleService {
       null,
       targetBoardArticle.memberId,
     );
+    console.log('article memberId:', targetBoardArticle.memberId);
     return targetBoardArticle;
   }
 

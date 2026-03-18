@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver } from '@nestjs/apollo';
 import { T } from './libs/types/common';
@@ -10,10 +10,13 @@ import { DatabaseModule } from './database/database.module';
 import { ComponentsModule } from './components/components.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { SocketModule } from './socket/socket.module';
+import { CacheModule } from '@nestjs/cache-manager';
+
+import Redis from 'ioredis';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     GraphQLModule.forRoot({
       driver: ApolloDriver,
       playground: true,
@@ -33,6 +36,41 @@ import { SocketModule } from './socket/socket.module';
         return graphQLFormatError;
       },
     }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
+        const redisClient = new Redis({
+          host: 'driving-jaguar-76565.upstash.io',
+          port: 6379,
+          password: configService.get('REDIS_PASSWORD'),
+          tls: {},
+        });
+
+        redisClient.on('connect', () => console.log('✅ Redis connected!'));
+        redisClient.on('error', (err) => console.log('❌ Redis error:', err));
+
+        return {
+          store: {
+            create: () => ({
+              get: (key: string) => redisClient.get(key),
+              set: (key: string, value: any, ttl?: number) =>
+                redisClient.set(key, JSON.stringify(value), 'EX', ttl || 60),
+              del: (key: string) => redisClient.del(key),
+              reset: () => redisClient.flushall(),
+            }),
+          },
+        };
+      },
+      inject: [ConfigService],
+    }),
+
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 5,
+      },
+    ]),
 
     ComponentsModule,
     DatabaseModule,

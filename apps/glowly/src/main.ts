@@ -6,6 +6,8 @@ import { graphqlUploadExpress } from 'graphql-upload';
 import * as express from 'express';
 import helmet from 'helmet';
 import { WsAdapter } from '@nestjs/platform-ws';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
