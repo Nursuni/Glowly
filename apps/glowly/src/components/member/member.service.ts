@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ForbiddenException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -39,6 +40,7 @@ export class MemberService {
     private viewService: ViewService,
     private authService: AuthService,
     private likeService: LikeService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
   public async signup(input: MemberInput): Promise<Member> {
     try {
@@ -80,28 +82,16 @@ export class MemberService {
     return response;
   }
 
-  public async updateMember(
-    memberId: ObjectId,
-    input: MemberUpdate,
-  ): Promise<Member> {
-    const result = await this.memberModel
-      .findOneAndUpdate(
-        { _id: memberId, memberStatus: MemberStatus.ACTIVE },
-        input,
-        { new: true },
-      )
-      .exec();
-    if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
-    result.accessToken = await this.authService.createToken(result);
-
-    return result;
-  }
-
   public async getMember(
     memberId: ObjectId,
     targetId: ObjectId,
   ): Promise<Member> {
+    const cacheKey = `member:${targetId.toString()}`;
     console.log('memberId in getMember:', memberId);
+
+    // Check Cache first (only if viewer is guest, to keep it simple)
+    const cachedMember = await this.cacheManager.get<Member>(cacheKey);
+    if (cachedMember && !memberId) return cachedMember;
 
     const search: T = {
       _id: targetId,
@@ -125,7 +115,25 @@ export class MemberService {
         targetMember.memberViews++;
       }
     }
+    await this.cacheManager.set(cacheKey, targetMember);
     return targetMember;
+  }
+  public async updateMember(
+    memberId: ObjectId,
+    input: MemberUpdate,
+  ): Promise<Member> {
+    const result = await this.memberModel
+      .findOneAndUpdate(
+        { _id: memberId, memberStatus: MemberStatus.ACTIVE },
+        input,
+        { new: true },
+      )
+      .exec();
+    if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
+    await this.cacheManager.del(`member:${memberId.toString()}`);
+
+    result.accessToken = await this.authService.createToken(result);
+    return result;
   }
 
   public async getAllMembersByAdmin(input: MembersInquiry): Promise<Members> {
@@ -218,14 +226,20 @@ export class MemberService {
     console.log('Executed: memberStatsEditor', input);
 
     const { _id, targetKey, modifier } = input;
-
-    return await this.memberModel
+    const result = await this.memberModel
       .findOneAndUpdate(
         { _id },
         { $inc: { [targetKey]: modifier } },
         { new: true },
       )
       .exec();
+
+    if (result) {
+      await this.cacheManager.del(`member:${_id.toString()}`);
+    }
+    await this.cacheManager.del(`member:${input._id.toString()}`);
+
+    return result;
   }
 
   public async likeTargetMember(
