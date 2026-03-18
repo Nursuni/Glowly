@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -30,6 +31,8 @@ import {
   shapeIntoMongoObjectId,
 } from '../../libs/config';
 import { LikeInput } from '../../libs/dto/like/like.input';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 
 @Injectable()
 export class ProductService {
@@ -39,6 +42,7 @@ export class ProductService {
     private memberService: MemberService,
     private authService: AuthService,
     private likeService: LikeService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   public async createProduct(input: ProductInput): Promise<Product> {
@@ -60,6 +64,12 @@ export class ProductService {
     memberId: ObjectId,
     productId: ObjectId,
   ): Promise<Product> {
+    const cacheKey = `product:${productId.toString()}`;
+
+    const cachedProduct = await this.cacheManager.get<Product>(cacheKey);
+    if (cachedProduct && !memberId) {
+      return cachedProduct;
+    }
     const search: T = {
       _id: productId,
       productStatus: ProductStatus.ACTIVE,
@@ -100,6 +110,8 @@ export class ProductService {
       null,
       targetProduct.memberId,
     );
+
+    await this.cacheManager.set(cacheKey, targetProduct);
     return targetProduct;
   }
 
@@ -146,7 +158,9 @@ export class ProductService {
         modifier: -1,
       });
     }
-
+    if (result) {
+      await this.cacheManager.del(`product:${input._id.toString()}`);
+    }
     return result;
   }
 
@@ -343,7 +357,9 @@ export class ProductService {
         modifier: -1,
       });
     }
-
+    if (result) {
+      await this.cacheManager.del(`product:${input._id.toString()}`);
+    }
     return result;
   }
 
@@ -386,8 +402,10 @@ export class ProductService {
 
     if (!result)
       throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
+    if (result) {
+      await this.cacheManager.del(`product:${likeRefId.toString()}`);
+    }
     return result;
-    // LIKE TOGGLE
   }
 
   public async getVisited(

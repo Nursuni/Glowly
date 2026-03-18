@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -24,6 +25,8 @@ import {
   lookupFollowerData,
   lookupFollowingData,
 } from '../../libs/config';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 
 @Injectable()
 export class FollowService {
@@ -33,6 +36,7 @@ export class FollowService {
     @InjectModel('Follow')
     private readonly followModel: Model<Follower | Following>,
     private memberService: MemberService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   public async subscribe(
@@ -48,16 +52,24 @@ export class FollowService {
 
     const result = await this.registerSubscription(followerId, followingId);
 
-    await this.memberService.memberStatsEditor({
-      _id: followerId,
-      targetKey: 'memberFollowings',
-      modifier: 1,
-    });
-    await this.memberService.memberStatsEditor({
-      _id: followingId,
-      targetKey: 'memberFollowers',
-      modifier: 1,
-    });
+    if (result) {
+      // 1. Update Stats in MongoDB
+      await this.memberService.memberStatsEditor({
+        _id: followerId,
+        targetKey: 'memberFollowings',
+        modifier: 1,
+      });
+      await this.memberService.memberStatsEditor({
+        _id: followingId,
+        targetKey: 'memberFollowers',
+        modifier: 1,
+      });
+
+      // 2. INVALIDATE CACHE in Redis
+      // This ensures that next time someone views these profiles, they see the new counts.
+      await this.cacheManager.del(`member:${followerId.toString()}`);
+      await this.cacheManager.del(`member:${followingId.toString()}`);
+    }
 
     return result;
   }
@@ -98,17 +110,23 @@ export class FollowService {
 
     if (!result) throw new NotFoundException(Message.NO_DATA_FOUND);
 
-    await this.memberService.memberStatsEditor({
-      _id: followerId,
-      targetKey: 'memberFollowings',
-      modifier: -1,
-    });
-    await this.memberService.memberStatsEditor({
-      _id: followingId,
-      targetKey: 'memberFollowers',
-      modifier: -1,
-    });
+    if (result) {
+      // 1. Update Stats in MongoDB
+      await this.memberService.memberStatsEditor({
+        _id: followerId,
+        targetKey: 'memberFollowings',
+        modifier: -1,
+      });
+      await this.memberService.memberStatsEditor({
+        _id: followingId,
+        targetKey: 'memberFollowers',
+        modifier: -1,
+      });
 
+      // 2. INVALIDATE CACHE
+      await this.cacheManager.del(`member:${followerId.toString()}`);
+      await this.cacheManager.del(`member:${followingId.toString()}`);
+    }
     return result;
   }
 

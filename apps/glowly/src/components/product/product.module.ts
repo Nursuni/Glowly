@@ -7,11 +7,13 @@ import { MemberModule } from '../member/member.module';
 import { LikeModule } from '../like/like.module';
 import { ProductResolver } from './product.resolver';
 import ProductSchema from '../../libs/schema/Product.model';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'Product', schema: ProductSchema }]),
     AuthModule,
+    CacheModule.register(),
     ViewModule,
     MemberModule,
     LikeModule,
