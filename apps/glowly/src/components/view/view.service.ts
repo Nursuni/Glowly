@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { View } from '../../libs/dto/view/view';
@@ -14,14 +14,30 @@ import type { Cache } from 'cache-manager';
 
 @Injectable()
 export class ViewService {
-  constructor(@InjectModel('View') private readonly viewModel: Model<View>) {}
+  constructor(
+    @InjectModel('View') private readonly viewModel: Model<View>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
 
   public async recordView(input: ViewInput): Promise<View | null> {
+    const { memberId, viewRefId, viewGroup } = input;
+    const cacheKey = `viewed:${memberId}:${viewRefId}`;
+
+    const isRecentlyViewed = await this.cacheManager.get(cacheKey);
+    if (isRecentlyViewed) return null;
+
     const viewExist = await this.checkViewExistence(input);
     if (!viewExist) {
-      console.log('-New View Inserted-');
-      return await this.viewModel.create(input);
-    } else return null;
+      const newView = await this.viewModel.create(input);
+      // 4. Store in Redis so next time we don't hit the DB
+      // TTL of 24 hours (86400s) is standard for view counts
+      await this.cacheManager.set(cacheKey, true, 86400);
+      return newView;
+    } else {
+      // Also update Redis if it existed in DB but was missing from cache
+      await this.cacheManager.set(cacheKey, true, 86400);
+      return null;
+    }
   }
   private async checkViewExistence(input: ViewInput): Promise<View | null> {
     const { memberId, viewRefId } = input;
