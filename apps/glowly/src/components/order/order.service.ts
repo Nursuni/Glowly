@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ForbiddenException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -44,6 +45,7 @@ export class OrderService {
     @InjectModel('Order') private readonly orderModel: Model<Order>,
     @InjectModel('Product') private readonly productModel: Model<Product>,
     @InjectModel('Member') private readonly memberModel: Model<Member>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private readonly notificationService: NotificationService,
   ) {}
 
@@ -175,6 +177,10 @@ export class OrderService {
   //  MY ORDERS  (customer paginated list)
   // ─────────────────────────────────────────────
   async getOrders(memberId: ObjectId, input: OrdersInquiry): Promise<Orders> {
+    const cacheKey = `orders:${memberId.toString()}:${JSON.stringify(input.search)}:${input.page}`;
+
+    const cachedOrders = await this.cacheManager.get<Orders>(cacheKey);
+    if (cachedOrders) return cachedOrders;
     const { page, limit, sort, direction, search } = input;
     const match: Record<string, any> = { memberId };
 
@@ -248,7 +254,7 @@ export class OrderService {
         },
       ])
       .exec();
-
+    await this.cacheManager.set(cacheKey, data, 1800);
     return data;
   }
 
@@ -306,6 +312,10 @@ export class OrderService {
         orderId: order._id,
       });
     }
+
+    const pattern = `orders:${memberId.toString()}:*`;
+
+    await this.cacheManager.del(`orders:${memberId.toString()}*`);
     return updated;
   }
 
