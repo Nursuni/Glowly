@@ -26,6 +26,8 @@ import {
   NotificationGroup,
   NotificationType,
 } from '../../libs/enums/notification.enum';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 
 // delivery fee rules
 const DELIVERY_FEES: Record<string, number> = {

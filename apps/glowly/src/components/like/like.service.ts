@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
 import { Like, MeLiked } from '../../libs/dto/like/like';
@@ -9,10 +9,15 @@ import { Products } from '../../libs/dto/product/product';
 import { lookupFavorite } from '../../libs/config';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { OrdinaryInquiry } from '../../libs/dto/product/product.input';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 
 @Injectable()
 export class LikeService {
-  constructor(@InjectModel('Like') private readonly likeModel: Model<Like>) {}
+  constructor(
+    @InjectModel('Like') private readonly likeModel: Model<Like>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
   public async toggleLike(input: LikeInput): Promise<number> {
     const search: T = {
         memberId: input.memberId,
@@ -30,6 +35,9 @@ export class LikeService {
         console.log('Error Service.model:', err.message);
         throw new BadRequestException(Message.CREATE_FAILED);
       }
+    }
+    if (input.likeGroup === LikeGroup.PRODUCT) {
+      await this.cacheManager.del(`product:${input.likeRefId.toString()}`);
     }
     console.log(`Like modifer ${modifier} `);
     return modifier;

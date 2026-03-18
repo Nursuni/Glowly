@@ -9,6 +9,8 @@ import { ViewGroup } from '../../libs/enums/view.enum';
 import { lookupVisit } from '../../libs/config';
 import { Products } from '../../libs/dto/product/product';
 import { OrdinaryInquiry } from '../../libs/dto/product/product.input';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 
 @Injectable()
 export class ViewService {

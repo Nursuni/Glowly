@@ -8,6 +8,8 @@ import {
   QuizSubmission,
   QuizSubmissionDocument,
 } from '../../libs/schema/Quiz.model';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 
 @Injectable()
 export class QuizService {

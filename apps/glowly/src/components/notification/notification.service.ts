@@ -1,9 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, ObjectId } from 'mongoose';
-import { Notification, Notifications } from '../../libs/dto/notification/notification';
-import { NotificationsInquiry, CreateNotificationInput } from '../../libs/dto/notification/notification.input';
+import {
+  Notification,
+  Notifications,
+} from '../../libs/dto/notification/notification';
+import {
+  NotificationsInquiry,
+  CreateNotificationInput,
+} from '../../libs/dto/notification/notification.input';
 import { NotificationStatus } from '../../libs/enums/notification.enum';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 
 @Injectable()
 export class NotificationService {
@@ -36,8 +44,10 @@ export class NotificationService {
     const { page, limit, search } = input;
 
     const match: Record<string, any> = { receiverId: memberId };
-    if (search?.notificationStatus) match.notificationStatus = search.notificationStatus;
-    if (search?.notificationGroup)  match.notificationGroup  = search.notificationGroup;
+    if (search?.notificationStatus)
+      match.notificationStatus = search.notificationStatus;
+    if (search?.notificationGroup)
+      match.notificationGroup = search.notificationGroup;
 
     const [data] = await this.notificationModel
       .aggregate([
@@ -45,16 +55,16 @@ export class NotificationService {
         {
           $facet: {
             list: [
-              { $sort:  { createdAt: -1 } },
-              { $skip:  (page - 1) * limit },
+              { $sort: { createdAt: -1 } },
+              { $skip: (page - 1) * limit },
               { $limit: limit },
               // populate author avatar + nick for the notification row
               {
                 $lookup: {
-                  from:         'members',
-                  localField:   'authorId',
+                  from: 'members',
+                  localField: 'authorId',
                   foreignField: '_id',
-                  as:           'authorData',
+                  as: 'authorData',
                 },
               },
               {
@@ -78,7 +88,7 @@ export class NotificationService {
   // ─────────────────────────────────────────────
   async getUnreadCount(memberId: ObjectId): Promise<number> {
     return this.notificationModel.countDocuments({
-      receiverId:         memberId,
+      receiverId: memberId,
       notificationStatus: NotificationStatus.UNREAD,
     });
   }
@@ -92,8 +102,8 @@ export class NotificationService {
   ): Promise<Notification> {
     const updated = await this.notificationModel.findOneAndUpdate(
       {
-        _id:        notificationId,
-        receiverId: memberId,        // security — can only mark your own
+        _id: notificationId,
+        receiverId: memberId, // security — can only mark your own
       },
       { $set: { notificationStatus: NotificationStatus.READ } },
       { new: true },
@@ -109,7 +119,7 @@ export class NotificationService {
   async markAllAsRead(memberId: ObjectId): Promise<boolean> {
     await this.notificationModel.updateMany(
       {
-        receiverId:         memberId,
+        receiverId: memberId,
         notificationStatus: NotificationStatus.UNREAD,
       },
       { $set: { notificationStatus: NotificationStatus.READ } },
@@ -125,8 +135,8 @@ export class NotificationService {
     notificationId: string,
   ): Promise<boolean> {
     const result = await this.notificationModel.deleteOne({
-      _id:        notificationId,
-      receiverId: memberId,          // security — can only delete your own
+      _id: notificationId,
+      receiverId: memberId, // security — can only delete your own
     });
 
     return result.deletedCount > 0;
