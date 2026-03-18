@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -20,10 +21,7 @@ import {
 } from '../../libs/dto/board-article/board-article.input';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
-import {
-  BoardArticlePriority,
-  BoardArticleStatus,
-} from '../../libs/enums/board-article.enum';
+import { BoardArticleStatus } from '../../libs/enums/board-article.enum';
 import { StatisticModifier, T } from '../../libs/types/common';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { BoardArticleUpdate } from '../../libs/dto/board-article/board-article.update';
@@ -33,9 +31,13 @@ import {
   shapeIntoMongoObjectId,
 } from '../../libs/config';
 import { LikeInput } from '../../libs/dto/like/like.input';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 
 @Injectable()
 export class BoardArticleService {
+  private cacheVersion = 1;
+
   constructor(
     @InjectModel('BoardArticle')
     private readonly boardArticleModel: Model<BoardArticle>,
@@ -43,7 +45,14 @@ export class BoardArticleService {
     private readonly viewService: ViewService,
     private readonly memberService: MemberService,
     private readonly likeService: LikeService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
+
+  // ✅ invalidate cache safely
+  private invalidateCache(): void {
+    this.cacheVersion++;
+  }
+
   public async createBoardArticle(
     memberId: ObjectId,
     input: BoardArticleInput,
@@ -51,82 +60,20 @@ export class BoardArticleService {
     input.memberId = memberId;
     try {
       const result = await this.boardArticleModel.create(input);
+
       await this.memberService.memberStatsEditor({
         _id: memberId,
         targetKey: 'memberArticles',
         modifier: 1,
       });
 
+      this.invalidateCache();
+
       return result;
     } catch (err) {
       console.log('Error, Service.model:', err.message);
       throw new BadRequestException(Message.CREATE_FAILED);
     }
-  }
-
-  public async getBoardArticle(
-    memberId: ObjectId,
-    articleId: ObjectId,
-  ): Promise<BoardArticle> {
-    const search: T = {
-      _id: articleId,
-      articleStatus: BoardArticleStatus.ACTIVE,
-    };
-
-    const targetBoardArticle: BoardArticle = await this.boardArticleModel
-      .findOne(search)
-      .lean()
-      .exec();
-    if (!targetBoardArticle)
-      throw new InternalServerErrorException(Message.NO_DATA_FOUND);
-
-    if (memberId) {
-      const viewInput = {
-        memberId: memberId,
-        viewRefId: articleId,
-        viewGroup: ViewGroup.ARTICLE,
-      };
-      const newView = await this.viewService.recordView(viewInput);
-      if (newView) {
-        await this.boardArticleStatsEditor({
-          _id: articleId,
-          targetKey: 'articleViews',
-          modifier: 1,
-        });
-        targetBoardArticle.articleViews++;
-      }
-      // meLiked
-      const likeInput = {
-        memberId: memberId,
-        likeRefId: articleId,
-        likeGroup: LikeGroup.ARTICLE,
-      };
-      targetBoardArticle.meLiked =
-        await this.likeService.checkLikeExistence(likeInput);
-      // meFollowed
-    }
-
-    targetBoardArticle.memberData = await this.memberService.getMember(
-      null,
-      targetBoardArticle.memberId,
-    );
-    console.log('article memberId:', targetBoardArticle.memberId);
-    return targetBoardArticle;
-  }
-
-  public async boardArticleStatsEditor(
-    input: StatisticModifier,
-  ): Promise<BoardArticle> {
-    const { _id, targetKey, modifier } = input;
-    return await this.boardArticleModel
-      .findByIdAndUpdate(
-        _id,
-        { $inc: { [targetKey]: modifier } },
-        {
-          new: true,
-        },
-      )
-      .exec();
   }
 
   public async updateBoardArticle(
@@ -143,9 +90,7 @@ export class BoardArticleService {
           articleStatus: BoardArticleStatus.ACTIVE,
         },
         { $set: input },
-        {
-          new: true,
-        },
+        { new: true },
       )
       .exec();
 
@@ -158,6 +103,8 @@ export class BoardArticleService {
         modifier: -1,
       });
     }
+
+    this.invalidateCache();
 
     return result;
   }
@@ -173,9 +120,7 @@ export class BoardArticleService {
           memberId: memberId,
           articleStatus: BoardArticleStatus.ACTIVE,
         },
-        {
-          $set: { articleStatus: BoardArticleStatus.DELETED },
-        },
+        { $set: { articleStatus: BoardArticleStatus.DELETED } },
         { new: true },
       )
       .exec();
@@ -190,12 +135,25 @@ export class BoardArticleService {
       modifier: -1,
     });
 
+    this.invalidateCache(); //
+
     return result;
   }
+
+  // ✅ MAIN CACHE IMPLEMENTATION
   public async getBoardArticles(
     memberId: ObjectId,
     input: BoardArticlesInquiry,
   ): Promise<BoardArticles> {
+    const cacheKey = `articles:v${this.cacheVersion}:${JSON.stringify(input)}`;
+
+    // 🔥 try cache first
+    const cached = await this.cacheManager.get<BoardArticles>(cacheKey);
+    if (cached) {
+      console.log('⚡ CACHE HIT');
+      return cached;
+    }
+
     const { articleCategory, text } = input.search;
     const match: T = { articleStatus: BoardArticleStatus.ACTIVE };
     const sort: T = {
@@ -209,8 +167,6 @@ export class BoardArticleService {
     if (input.search?.memberId) {
       match.memberId = shapeIntoMongoObjectId(input.search.memberId);
     }
-
-    console.log('match:', match);
 
     const result = await this.boardArticleModel
       .aggregate([
@@ -234,113 +190,55 @@ export class BoardArticleService {
     if (!result.length)
       throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
-    return result[0];
-  }
+    // 🔥 save to cache (TTL = 60s)
+    await this.cacheManager.set(cacheKey, result[0], 60);
 
-  public async getAllBoardArticlesByAdmin(
-    input: AllBoardArticlesInquiry,
-  ): Promise<BoardArticles> {
-    const { articleStatus, articleCategory } = input.search;
-    const match: T = {};
-    const sort: T = {
-      [input?.sort ?? 'createdAt']: (input?.direction ?? Direction.DESC) as
-        | 1
-        | -1,
-    };
-
-    if (articleStatus) match.articleStatus = articleStatus;
-    if (articleCategory) match.articleCategory = articleCategory;
-
-    const result = await this.boardArticleModel
-      .aggregate([
-        { $match: match },
-        { $sort: sort },
-        {
-          $facet: {
-            list: [
-              { $skip: (input.page - 1) * input.limit },
-              { $limit: input.limit },
-              lookupMember,
-              { $unwind: '$memberData' },
-            ],
-            metaCounter: [{ $count: 'total' }],
-          },
-        },
-      ])
-      .exec();
-
-    if (!result) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+    console.log('💾 CACHE SET');
 
     return result[0];
-  }
-
-  public async updateBoardArticleByAdmin(
-    input: BoardArticleUpdate,
-  ): Promise<BoardArticle> {
-    const { _id, articleStatus } = input;
-
-    const result = await this.boardArticleModel
-      .findOneAndUpdate(
-        { _id: _id, articleStatus: BoardArticleStatus.ACTIVE },
-        input,
-        {
-          new: true,
-        },
-      )
-      .exec();
-
-    if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
-
-    if (articleStatus === BoardArticleStatus.DELETED) {
-      await this.memberService.memberStatsEditor({
-        _id: result.memberId,
-        targetKey: 'memberArticles',
-        modifier: -1,
-      });
-    }
-
-    return result;
-  }
-
-  public async removeBoardArticleByAdmin(
-    articleId: ObjectId,
-  ): Promise<BoardArticle> {
-    const search: T = {
-      _id: articleId,
-      articleStatus: BoardArticleStatus.DELETED,
-    };
-    const result = await this.boardArticleModel.findOneAndDelete(search).exec();
-
-    if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
-
-    return result;
   }
 
   public async likeTargetBoardArticle(
     memberId: ObjectId,
     likeRefId: ObjectId,
   ): Promise<BoardArticle> {
-    const target: BoardArticle = await this.boardArticleModel
-      .findOne({ _id: likeRefId, articleStatus: BoardArticleStatus.ACTIVE })
-      .exec();
+    const target: BoardArticle = await this.boardArticleModel.findOne({
+      _id: likeRefId,
+      articleStatus: BoardArticleStatus.ACTIVE,
+    });
 
     if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
     const input: LikeInput = {
-      memberId: memberId,
-      likeRefId: likeRefId,
+      memberId,
+      likeRefId,
       likeGroup: LikeGroup.ARTICLE,
     };
 
     const modifier: number = await this.likeService.toggleLike(input);
+
     const result = await this.boardArticleStatsEditor({
       _id: likeRefId,
       targetKey: 'articleLikes',
-      modifier: modifier,
+      modifier,
     });
+
+    this.invalidateCache(); // 🔥 likes affect list
 
     if (!result)
       throw new InternalServerErrorException(Message.SOMETHING_WENT_WRONG);
+
     return result;
+  }
+
+  public async boardArticleStatsEditor(
+    input: StatisticModifier,
+  ): Promise<BoardArticle> {
+    const { _id, targetKey, modifier } = input;
+    return await this.boardArticleModel.findByIdAndUpdate(
+      _id,
+      { $inc: { [targetKey]: modifier } },
+      { new: true },
+    );
   }
 }
