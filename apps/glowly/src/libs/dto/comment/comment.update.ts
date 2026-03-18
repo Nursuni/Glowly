@@ -5,16 +5,21 @@ import type { ObjectId } from 'mongoose';
 
 @InputType()
 export class CommentUpdate {
-	@IsNotEmpty()
-	@Field(() => String)
-	_id: ObjectId;
+  @IsNotEmpty()
+  @Field(() => String)
+  _id: ObjectId;
 
-	@IsOptional()
-	@Field(() => CommentStatus, { nullable: true })
-	commentStatus?: CommentStatus;
+  // 🔥 REQUIRED for cache invalidation
+  @IsNotEmpty()
+  @Field(() => String)
+  commentRefId: ObjectId;
 
-	@IsOptional()
-	@Length(1, 100)
-	@Field(() => String, { nullable: true })
-	commentContent?: string;
+  @IsOptional()
+  @Field(() => CommentStatus, { nullable: true })
+  commentStatus?: CommentStatus;
+
+  @IsOptional()
+  @Length(1, 100)
+  @Field(() => String, { nullable: true })
+  commentContent?: string;
 }

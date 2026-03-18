@@ -30,7 +30,7 @@ export class ViewService {
     if (!viewExist) {
       const newView = await this.viewModel.create(input);
       // 4. Store in Redis so next time we don't hit the DB
-      // TTL of 24 hours (86400s) is standard for view counts
+      // TTL of 24 hours (86400s) is standard for view countsgt
       await this.cacheManager.set(cacheKey, true, 86400);
       return newView;
     } else {
