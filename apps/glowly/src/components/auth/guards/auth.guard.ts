@@ -6,7 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from '../auth.service';
-import { Message } from 'apps/glowly/src/libs/enums/common.enum';
+import { Message } from '../../../libs/enums/common.enum';
 
 @Injectable()
 export class AuthGuard implements CanActivate {

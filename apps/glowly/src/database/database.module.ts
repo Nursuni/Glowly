@@ -41,7 +41,7 @@ export class DatabaseModule {
         console.log('✅ Redis: Connected to Upstash');
       }
     } catch (err) {
-      console.log('❌ Redis: Connection Failed', err.message);
+      console.log('❌ Redis: Connection Failed', (err as Error).message);
     }
   }
 }

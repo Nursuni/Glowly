@@ -52,7 +52,7 @@ export class MemberService {
       result.accessToken = await this.authService.createToken(result);
       return result;
     } catch (err) {
-      console.log('err Service model', err.message);
+      console.log('err Service model', err instanceof Error ? err.message : String(err));
       throw new BadRequestException(Message.USED_MEMBER_NICK_OR_PHONE);
     }
   }

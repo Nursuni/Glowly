@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ProductService } from './product.service';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ProductService } from './product.service';
+
 import { AuthModule } from '../auth/auth.module';
 import { ViewModule } from '../view/view.module';
 import { MemberModule } from '../member/member.module';

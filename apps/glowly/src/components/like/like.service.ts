@@ -32,7 +32,7 @@ export class LikeService {
       try {
         await this.likeModel.create(input);
       } catch (err) {
-        console.log('Error Service.model:', err.message);
+        console.log('Error Service.model:', err instanceof Error ? err.message : String(err));
         throw new BadRequestException(Message.CREATE_FAILED);
       }
     }
