@@ -38,7 +38,7 @@ export class DatabaseModule {
       await this.cacheManager.set('connection_test', 'ok', 10);
       const test = await this.cacheManager.get('connection_test');
       if (test === 'ok') {
-        console.log('✅ Redis: Connected to Upstash');
+        console.log('✅ Redis: Connected!');
       }
     } catch (err) {
       console.log('❌ Redis: Connection Failed', (err as Error).message);

@@ -41,14 +41,15 @@ import Redis from 'ioredis';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
         const redisClient = new Redis({
-          host: 'driving-jaguar-76565.upstash.io',
-          port: 6379,
+          host: configService.get('REDIS_HOST'),
+          port: configService.get<number>('REDIS_PORT'),
           password: configService.get('REDIS_PASSWORD'),
-          tls: {},
         });
 
         redisClient.on('connect', () => console.log('✅ Redis connected!'));
-        redisClient.on('error', (err) => console.log('❌ Redis error:', err));
+        redisClient.on('error', (err) =>
+          console.log('❌ Redis error:', err.message),
+        );
 
         return {
           store: {
